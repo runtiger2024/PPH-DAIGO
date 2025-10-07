@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
 import "dotenv/config"; // 管理環境變數
+import path from "path";
+import { fileURLToPath } from "url";
 
 // ================================================================
 // --- 初始化與設定 (Initialization & Configuration) ---
@@ -82,6 +84,15 @@ async function initializeDatabase() {
         "productUrl" TEXT,
         "productName" TEXT,
         "contactInfo" TEXT
+      );
+      CREATE TABLE IF NOT EXISTS sites (
+        site_id TEXT PRIMARY KEY,
+        site_name TEXT NOT NULL,
+        owner_username TEXT REFERENCES users(username),
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        layout_settings JSONB,
+        theme_settings JSONB,
+        content_settings JSONB  
       );
     `);
     console.log("資料庫資料表已成功驗證/建立。");
@@ -167,6 +178,34 @@ function authorizeAdmin(req, res, next) {
 // ================================================================
 // --- API 路由 (Routes) ---
 // ================================================================
+
+// --- 網站主頁動態渲染路由 ---
+app.get("/", async (req, res, next) => {
+  try {
+    // 1. 從資料庫讀取預設網站設定
+    const { rows } = await pool.query(
+      "SELECT * FROM sites WHERE site_id = 'default_site'"
+    );
+    const siteConfig = rows[0];
+
+    if (!siteConfig) {
+      // 如果資料庫沒設定，顯示錯誤
+      return res
+        .status(404)
+        .send("找不到網站設定。請確認資料庫中有名為 'default_site' 的紀錄。");
+    }
+
+    // 2. 使用 res.render() 渲染頁面
+    //    並將從資料庫取出的設定物件，傳遞給模板
+    res.render("index", {
+      layout: siteConfig.layout_settings,
+      theme: siteConfig.theme_settings,
+      content: siteConfig.content_settings,
+    });
+  } catch (error) {
+    next(error); // 如果出錯，交給統一的錯誤處理中介軟體
+  }
+});
 
 // --- 公開路由 (Public Routes) ---
 app.post("/api/login", async (req, res, next) => {
