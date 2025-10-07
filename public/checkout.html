@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>訂單結帳 - 代採購大平台</title>
+    <meta
+      name="description"
+      content="確認您的購物車明細，填寫客戶資訊並完成訂單。"
+    />
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-content">
+        <a href="index.html" class="site-logo-link" title="返回首頁">
+          <img
+            src="images/logo.png"
+            alt="代採購大平台 LOGO"
+            class="site-logo"
+          />
+        </a>
+
+        <nav class="main-nav desktop-nav">
+          <a href="index.html" class="nav-link-item">批發貨源</a>
+          <a href="request.html" class="nav-link-item">代採購</a>
+          <a href="lookup.html" class="nav-link-item">訂單查詢</a>
+        </nav>
+
+        <div class="header-actions">
+          <a
+            href="checkout.html"
+            class="cart-nav-link active"
+            title="前往購物車"
+          >
+            <svg
+              class="cart-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              width="24"
+              height="24"
+            >
+              <path
+                d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+              />
+            </svg>
+            <span id="cart-count" class="cart-count-badge" style="display: none"
+              >0</span
+            >
+          </a>
+          <button
+            id="hamburger-btn"
+            class="hamburger-btn"
+            aria-label="開啟選單"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+      <div id="mobile-menu" class="mobile-menu">
+        <a href="index.html">批發貨源</a>
+        <a href="request.html">代採購</a>
+        <a href="lookup.html">訂單查詢</a>
+        <hr />
+      </div>
+    </header>
+
+    <main class="container checkout-container">
+      <div class="checkout-header">
+        <h1>訂單結帳</h1>
+        <a href="index.html">← 繼續購物</a>
+      </div>
+
+      <form id="checkout-form">
+        <section class="checkout-section">
+          <h3>您的購物車明細</h3>
+          <div class="table-responsive">
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th style="width: 40%">商品名稱</th>
+                  <th>單價</th>
+                  <th>服務費</th>
+                  <th>數量</th>
+                  <th>小計</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="cart-items-body"></tbody>
+            </table>
+          </div>
+          <div class="cart-summary" id="cart-summary"></div>
+        </section>
+
+        <section class="checkout-section">
+          <h3>請匯款至以下帳戶</h3>
+          <div class="payment-details">
+            <p><span>銀行:</span> <strong>富邦銀行 (012)</strong></p>
+            <p>
+              <span>帳號:</span>
+              <span>
+                <strong id="bank-account">81680013793778</strong>
+                <button
+                  type="button"
+                  id="copy-btn"
+                  class="btn-secondary btn-small"
+                >
+                  一鍵複製
+                </button>
+              </span>
+            </p>
+          </div>
+        </section>
+
+        <section class="checkout-section">
+          <h3>客戶資訊 (星號 * 為必填)</h3>
+          <div class="form-group">
+            <label for="paopaohu-id">跑跑虎集運會員編號 *</label>
+            <input
+              type="text"
+              id="paopaohu-id"
+              placeholder="請輸入您在跑跑虎的會員編號"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="customer-email">E-mail *</label>
+            <input
+              type="email"
+              id="customer-email"
+              placeholder="用於接收訂單確認信"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="tax-id">統一編號 (選填)</label>
+            <input
+              type="text"
+              id="tax-id"
+              placeholder="如需開立三聯式發票，請填寫"
+            />
+          </div>
+          <div class="form-group">
+            <label for="last-five">您的匯款帳號末五碼 *</label>
+            <input
+              type="text"
+              id="last-five"
+              placeholder="請輸入 5 位數字"
+              required
+              maxlength="5"
+              pattern="\d{5}"
+              title="請輸入 5 位數字"
+            />
+          </div>
+        </section>
+
+        <section class="checkout-section final-confirmation">
+          <h3>⚠️ 最終確認</h3>
+          <p>
+            我確認本服務僅負責代為採購商品並寄送至指定之跑跑虎集運(<strong>深圳</strong>)倉，後續大陸到台灣的運費將由我自行在跑跑虎APP操作並支付。
+          </p>
+          <div class="form-group">
+            <label for="confirmation-input"
+              >為確保您已了解，請在此處輸入「我了解」以啟用下單按鈕：</label
+            >
+            <input
+              type="text"
+              id="confirmation-input"
+              placeholder="請輸入『我了解』"
+            />
+          </div>
+        </section>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="btn-submit disabled"
+          disabled
+        >
+          確認下單，送出訂單
+        </button>
+      </form>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-content">
+        <p>&copy; 2025 代採購大平台. All Rights Reserved.</p>
+        <a href="login.html" class="admin-login-link">管理員登入</a>
+      </div>
+    </footer>
+
+    <script src="js/cart.js" defer></script>
+    <script src="js/admin-main.js" defer></script>
+    <script src="js/checkout.js" defer></script>
+  </body>
+</html>

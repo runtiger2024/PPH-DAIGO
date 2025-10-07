@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>代採購大平台 - 批發貨源</title>
+    <meta
+      name="description"
+      content="提供最優質的批發貨源，一站式代購服務，輕鬆開店，快速發貨。"
+    />
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header" id="site-header">
+      <div class="header-content">
+        <a href="index.html" class="site-logo-link" title="返回首頁">
+          <img
+            src="images/logo.png"
+            alt="代採購大平台 LOGO"
+            class="site-logo"
+          />
+        </a>
+
+        <nav id="main-navigation" class="main-nav">
+          <ul class="nav-list">
+            <li>
+              <a href="index.html" class="nav-link-item active">批發貨源</a>
+            </li>
+            <li><a href="request.html" class="nav-link-item">代採購</a></li>
+            <li><a href="lookup.html" class="nav-link-item">訂單查詢</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a href="checkout.html" class="cart-nav-link" title="前往購物車">
+            <svg
+              class="cart-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              width="24"
+              height="24"
+            >
+              <path
+                d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+              />
+            </svg>
+            <span id="cart-count" class="cart-count-badge is-hidden">0</span>
+          </a>
+          <button
+            id="hamburger-btn"
+            class="hamburger-btn"
+            aria-label="開啟或關閉主選單"
+            aria-controls="main-navigation"
+            aria-expanded="false"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="main-content-view">
+        <section class="important-reminder" aria-labelledby="reminder-title">
+          <h2 id="reminder-title">⚠️ 重要提醒，請務必詳讀 ⚠️</h2>
+          <p>
+            <strong>1. 關於價格：</strong>
+            頁面顯示的【台幣價格】即為您需要支付的全部費用，已包含代購服務費。
+          </p>
+          <p>
+            <strong>2. 關於運費：</strong>
+            <span class="text-danger"
+              >本站不經手任何運費。貨物送達後，您需自行登入「跑跑虎集運APP」支付國際運費。</span
+            >
+          </p>
+          <p>
+            <strong>3. 關於出貨：</strong
+            >請務必填寫正確的「跑跑虎集運」會員編號。
+          </p>
+          <p>
+            <strong>跑跑虎APP下載：</strong>
+            <a
+              href="https://reurl.cc/koE57x"
+              target="_blank"
+              rel="noopener noreferrer"
+              >iOS 蘋果系統</a
+            >
+            |
+            <a
+              href="https://play.google.com/store/apps/details?id=com.paodekuai.runtigerglobal"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Android 安卓系統</a
+            >
+          </p>
+        </section>
+
+        <section class="page-section" aria-labelledby="product-list-title">
+          <h2 id="product-list-title">批發貨源列表</h2>
+          <div
+            id="category-filters"
+            class="category-filters"
+            role="toolbar"
+            aria-label="商品分類"
+          ></div>
+          <div class="product-grid">
+            <p class="loading-text">商品載入中，請稍候...</p>
+          </div>
+        </section>
+      </div>
+
+      <div id="product-detail-container" class="is-hidden"></div>
+    </main>
+
+    <a
+      href="https://lin.ee/kMECpME"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="line-fab"
+      title="點此透過 LINE 聯繫我們"
+    >
+      <img
+        src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png"
+        alt="加入 LINE 好友"
+      />
+    </a>
+
+    <footer class="site-footer">
+      <div class="footer-content">
+        <p>&copy; 2025 代採購大平台. All Rights Reserved.</p>
+        <a href="login.html" class="admin-login-link">管理員登入</a>
+      </div>
+    </footer>
+
+    <script src="js/main.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/admin-main.js" defer></script>
+    <script src="js/products.js" defer></script>
+  </body>
+</html>

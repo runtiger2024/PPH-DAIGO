@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>代採購委託 - 代採購大平台</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-content">
+        <h1 class="site-title">代採購大平台</h1>
+        <nav class="main-nav">
+          <a href="index.html">批發貨源</a>
+          <a href="request.html">代採購</a>
+          <a href="lookup.html">訂單查詢</a>
+          <a href="checkout.html">購物車</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-section">
+        <h2>代採購委託</h2>
+
+        <div class="declaration-box">
+          <h3>代採購服務聲明（請務必詳閱）</h3>
+          <p>
+            您所委託之商品代採購服務，僅限依您提供之購物平台連結、商品規格與數量，代為下單並安排配送至我們在大陸的指定倉庫「跑跑虎集運-深圳倉、漳州倉」。
+          </p>
+          <p>
+            <strong
+              >本公司僅提供代購與下單服務，不參與商品挑選、驗貨、售後或品質擔保。</strong
+            >
+          </p>
+          <h4 class="declaration-subtitle">📌 付款金額說明：</h4>
+          <ul>
+            <li>商品金額（人民幣） × 匯率 4.5</li>
+            <li>加收服務費 20%（台幣計價）</li>
+            <li>如有大陸境內運費，將另行計算報價</li>
+            <li>台灣段跨境運費請至跑跑虎集運APP操作</li>
+            <li>本公司將開立商品金額之發票</li>
+          </ul>
+          <h4 class="declaration-subtitle">📌 免責事項如下：</h4>
+          <ul>
+            <li>
+              本服務僅為「代採購」，商品實際銷售方為平台原賣家，所有商品相關問題（如：瑕疵、缺件、規格不符、延誤出貨）本公司可協助轉達或代為提出申請，但不保證處理結果，亦不承擔因此產生之任何損失或責任。
+            </li>
+            <li>
+              本公司不驗貨、不挑貨、不拆箱，亦不提供任何形式之保固或正品保證。
+            </li>
+            <li>商品運送至「跑跑虎集運」大陸倉庫即視為代購完成。</li>
+            <li>易碎品、電子商品、定製品或高單價商品，請客戶自行評估風險。</li>
+            <li>若因選品錯誤或與預期不符造成損失，本公司恕不負責。</li>
+          </ul>
+          <p class="declaration-agreement">
+            ✅ <strong>完成匯款即表示您已詳細閱讀並同意上述聲明內容。</strong>
+          </p>
+        </div>
+        <hr class="section-divider" />
+
+        <p style="text-align: center">
+          請在此填寫您想代為採購的商品資訊，我們收到後會盡快透過您留下的聯絡方式向您報價。
+        </p>
+
+        <form id="request-form" class="admin-form" style="margin-top: 20px">
+          <div
+            id="response-message"
+            style="margin-bottom: 15px; text-align: center"
+          ></div>
+
+          <div class="form-group">
+            <label for="product-url">商品網址 (必填)</label>
+            <input
+              type="url"
+              id="product-url"
+              placeholder="請貼上完整的商品購物連結"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="product-name">商品名稱/簡述 (必填)</label>
+            <input
+              type="text"
+              id="product-name"
+              placeholder="例如：白色T恤、某型號藍牙耳機"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="product-specs">規格/顏色 (必填)</label>
+            <input
+              type="text"
+              id="product-specs"
+              placeholder="例如：尺寸XL、顏色黑色"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="product-quantity">數量 (必填)</label>
+            <input
+              type="number"
+              id="product-quantity"
+              value="1"
+              min="1"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="paopaohu-id">您的跑跑虎集運會員編號 (必填)</label>
+            <input
+              type="text"
+              id="paopaohu-id"
+              placeholder="方便我們處理後續配送"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="contact-info">您的 LINE ID 或 Email (必填)</label>
+            <input
+              type="text"
+              id="contact-info"
+              placeholder="方便我們與您聯絡報價"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="product-notes">備註</label>
+            <textarea
+              id="product-notes"
+              rows="4"
+              placeholder="其他補充說明事項"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">送出代採購請求</button>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; 2025 代採購大平台. All Rights Reserved.</p>
+      <div class="footer-links">
+        <a href="login.html" class="admin-login-link">管理者登入</a>
+      </div>
+    </footer>
+
+    <script src="js/request.js" defer></script>
+  </body>
+</html>
