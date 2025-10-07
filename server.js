@@ -144,6 +144,7 @@ async function initializeAdminUser() {
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
