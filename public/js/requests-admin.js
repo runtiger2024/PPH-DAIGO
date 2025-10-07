@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const requestListBody = document.getElementById("request-list-body");
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
+  const API_BASE_URL = "";
   const statusOptions = ["待報價", "已報價", "處理中", "已轉訂單", "已取消"];
 
   async function fetchAndRenderRequests() {

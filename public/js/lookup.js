@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultsContainer = document.getElementById("lookup-results");
 
   // 請確認這個網址是您部署好的後端網址
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
+  const API_BASE_URL = "";
 
   lookupForm.addEventListener("submit", async (event) => {
     event.preventDefault();

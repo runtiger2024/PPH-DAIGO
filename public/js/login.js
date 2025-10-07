@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessageDiv = document.getElementById("error-message");
 
   // !!! 請再次確認這個網址是您部署好的後端網址 !!!
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
+  const API_BASE_URL = "";
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();

@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
+  const API_BASE_URL = "";
 
   const todaySalesEl = document.getElementById("today-sales");
   const todayOrdersEl = document.getElementById("today-orders");

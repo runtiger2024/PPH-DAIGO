@@ -2,7 +2,7 @@
 const App = {
   // ---- 設定與狀態管理 (Configuration & State) ----
   config: {
-    apiBaseUrl: "https://daigou-platform-api.onrender.com",
+    apiBaseUrl: "",
   },
 
   // ---- DOM 元素集中管理 (DOM Element Cache) ----

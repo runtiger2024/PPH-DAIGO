@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com";
+  const API_BASE_URL = "";
 
   const userListBody = document.getElementById("user-list-body");
   const addUserForm = document.getElementById("add-user-form");

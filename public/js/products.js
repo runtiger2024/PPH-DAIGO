@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const App = {
     // ---- 設定與狀態管理 ----
     config: {
-      apiBaseUrl: "https://daigou-platform-api.onrender.com",
+      apiBaseUrl: "",
     },
     state: {
       allProducts: [],

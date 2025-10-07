@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const AdminApp = {
     // ---- 設定 ----
     config: {
-      apiBaseUrl: "https://daigou-platform-api.onrender.com",
+      apiBaseUrl: "",
       token: localStorage.getItem("authToken"),
       authHeaders: {
         "Content-Type": "application/json",

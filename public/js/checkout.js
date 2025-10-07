@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const CheckoutApp = {
     // ---- 設定 ----
     config: {
-      apiBaseUrl: "https://daigou-platform-api.onrender.com",
+      apiBaseUrl: "",
     },
 
     // ---- DOM 元素快取 ----

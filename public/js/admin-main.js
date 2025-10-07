@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const SharedApp = {
     // ---- 設定 ----
     config: {
-      apiBaseUrl: "https://daigou-platform-api.onrender.com",
+      apiBaseUrl: "",
       token: localStorage.getItem("authToken"),
     },
 

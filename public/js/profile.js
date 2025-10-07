@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const changePasswordForm = document.getElementById("change-password-form");
   const responseMessageDiv = document.getElementById("response-message");
   const logoutBtn = document.getElementById("logout-btn");
-  const API_BASE_URL = "https://daigou-platform-api.onrender.com"; // 請確保這是您正確的後端網址
+  const API_BASE_URL = ""; // 請確保這是您正確的後端網址
 
   changePasswordForm.addEventListener("submit", async (event) => {
     event.preventDefault();
