@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("settings-form");
   const feedbackMessage = document.getElementById("feedback-message");
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
 
   if (!token) {
     window.location.href = "/login.html";
