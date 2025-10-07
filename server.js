@@ -12,6 +12,10 @@ import { fileURLToPath } from "url";
 // --- 初始化與設定 (Initialization & Configuration) ---
 // ================================================================
 
+// --- __dirname 的設定 (ES Modules 環境需要) ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // --- 資料庫連線設定 ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -22,6 +26,11 @@ const pool = new Pool({
 });
 
 const app = express();
+
+// --- 設定模板引擎 ---
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 const port = process.env.PORT || 3000;
 const JWT_SECRET =
   process.env.JWT_SECRET || "your_super_secret_key_12345_and_make_it_long";
@@ -92,7 +101,7 @@ async function initializeDatabase() {
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
         layout_settings JSONB,
         theme_settings JSONB,
-        content_settings JSONB  
+        content_settings JSONB
       );
     `);
     console.log("資料庫資料表已成功驗證/建立。");
@@ -471,6 +480,80 @@ app.get(
     }
   }
 );
+
+// ▼▼▼ 在此處加入新的 API 路由 ▼▼▼
+
+// GET：獲取當前網站的設定
+app.get(
+  "/api/admin/site-settings",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      // 透過登入的使用者名稱，找到他所擁有的網站設定
+      // 注意：這裡我們假設一個管理員只管理一個網站
+      const { rows } = await pool.query(
+        `SELECT layout_settings, theme_settings, content_settings 
+       FROM sites 
+       WHERE owner_username = $1`,
+        [req.user.username]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: "找不到該管理員的網站設定" });
+      }
+
+      // 將三個設定物件合併成一個回傳
+      res.json({
+        layout: rows[0].layout_settings,
+        theme: rows[0].theme_settings,
+        content: rows[0].content_settings,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// PUT：更新網站設定
+app.put(
+  "/api/admin/site-settings",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      const { layout, theme, content } = req.body;
+
+      // 驗證傳入的資料是否完整
+      if (!layout || !theme || !content) {
+        return res.status(400).json({ message: "提交的設定資料不完整" });
+      }
+
+      const { rows } = await pool.query(
+        `UPDATE sites 
+       SET layout_settings = $1, theme_settings = $2, content_settings = $3 
+       WHERE owner_username = $4 
+       RETURNING site_id`, // RETURNING 可以確認是否有更新成功
+        [
+          JSON.stringify(layout),
+          JSON.stringify(theme),
+          JSON.stringify(content),
+          req.user.username,
+        ]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: "找不到可更新的網站設定" });
+      }
+
+      res.json({ message: "網站設定已成功更新！" });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ▲▲▲ 新的 API 路由結束 ▲▲▲
 
 app.post(
   "/api/products",

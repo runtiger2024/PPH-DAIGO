@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>網站外觀編輯器 - 管理後台</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="container page-section">
+      <nav class="admin-nav">
+        <a href="/admin.html">回到主控台</a>
+      </nav>
+
+      <h2>網站外觀編輯器</h2>
+      <p>在這裡修改的內容將會即時反映在你的網站前台。</p>
+
+      <form id="settings-form" class="admin-form">
+        <fieldset class="full-width">
+          <legend><h3>🎨 主題與顏色</h3></legend>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="primaryColor">主要顏色</label>
+              <input
+                type="color"
+                id="primaryColor"
+                data-path="theme.primaryColor"
+              />
+            </div>
+            <div class="form-group">
+              <label for="secondaryColor">次要顏色</label>
+              <input
+                type="color"
+                id="secondaryColor"
+                data-path="theme.secondaryColor"
+              />
+            </div>
+            <div class="form-group">
+              <label for="fontFamily">網站字體</label>
+              <input
+                type="text"
+                id="fontFamily"
+                data-path="theme.fontFamily"
+                placeholder="'Noto Sans TC', sans-serif"
+              />
+            </div>
+            <div class="form-group">
+              <label for="logoUrl">Logo 圖片網址</label>
+              <input
+                type="text"
+                id="logoUrl"
+                data-path="theme.logoUrl"
+                placeholder="/images/logo.png"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="full-width">
+          <legend><h3>📝 頁面文字內容</h3></legend>
+          <div class="form-group full-width">
+            <label for="heroTitle">首頁主標題</label>
+            <input type="text" id="heroTitle" data-path="content.heroTitle" />
+          </div>
+          <div class="form-group full-width">
+            <label for="heroSubtitle">首頁副標題</label>
+            <textarea
+              id="heroSubtitle"
+              data-path="content.heroSubtitle"
+              rows="3"
+            ></textarea>
+          </div>
+        </fieldset>
+
+        <fieldset class="full-width">
+          <legend><h3>🏗️ 頁面區塊顯示</h3></legend>
+          <div class="form-group">
+            <input
+              type="checkbox"
+              id="showAbout"
+              data-path="layout.showAbout"
+            />
+            <label for="showAbout">顯示「關於我們」區塊</label>
+          </div>
+        </fieldset>
+
+        <div class="form-group full-width">
+          <button type="submit" class="btn-primary">儲存變更</button>
+        </div>
+      </form>
+      <div id="feedback-message" style="margin-top: 1rem"></div>
+    </div>
+
+    <script src="/js/site-editor.js"></script>
+  </body>
+</html>
