@@ -1,6 +1,5 @@
 import express from "express";
-import { Low } from "lowdb";
-import { JSONFile } from "lowdb/node";
+import { Pool } from "pg"; // <--- 替換 lowdb
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -11,23 +10,14 @@ import "dotenv/config"; // 管理環境變數
 // --- 初始化與設定 (Initialization & Configuration) ---
 // ================================================================
 
-const adapter = new JSONFile(
-  process.env.NODE_ENV === "production" ? "/data/db.json" : "db.json"
-);
-const defaultData = {
-  products: [],
-  orders: [],
-  users: [],
-  requests: [],
-  categories: [],
-};
-const db = new Low(adapter, defaultData);
-await db.read();
-
-db.data ||= defaultData;
-for (const key in defaultData) {
-  db.data[key] ||= defaultData[key];
-}
+// --- 資料庫連線設定 ---
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
+});
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -42,6 +32,63 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // ================================================================
 // --- 服務與啟動腳本 (Services & Startup Scripts) ---
 // ================================================================
+
+// --- 資料庫初始化函式 ---
+async function initializeDatabase() {
+  const client = await pool.connect();
+  try {
+    console.log("正在驗證/建立資料庫資料表...");
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        "passwordHash" TEXT NOT NULL,
+        role TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS categories (
+        id TEXT PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS products (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        price NUMERIC DEFAULT 0,
+        category TEXT,
+        "imageUrl" TEXT,
+        "serviceFee" NUMERIC DEFAULT 0,
+        "longDescription" TEXT,
+        stock INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'published',
+        tags JSONB,
+        "sortOrder" INTEGER
+      );
+      CREATE TABLE IF NOT EXISTS orders (
+        "orderId" TEXT PRIMARY KEY,
+        "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        status TEXT,
+        "isNew" BOOLEAN DEFAULT true,
+        "activityLog" JSONB,
+        "paopaohuId" TEXT NOT NULL,
+        "lastFiveDigits" TEXT,
+        email TEXT,
+        items JSONB,
+        "totalAmount" NUMERIC
+      );
+      CREATE TABLE IF NOT EXISTS requests (
+        "requestId" TEXT PRIMARY KEY,
+        "receivedAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        status TEXT,
+        "isNew" BOOLEAN DEFAULT true,
+        "productUrl" TEXT,
+        "productName" TEXT,
+        "contactInfo" TEXT
+      );
+    `);
+    console.log("資料庫資料表已成功驗證/建立。");
+  } finally {
+    client.release();
+  }
+}
 
 async function sendEmailNotification({ subject, text, html }) {
   if (!process.env.SENDGRID_API_KEY) {
@@ -68,23 +115,26 @@ async function sendEmailNotification({ subject, text, html }) {
 
 async function initializeAdminUser() {
   const adminUsername = "randy";
-  let adminUser = db.data.users.find((u) => u.username === adminUsername);
+  const { rows } = await pool.query("SELECT * FROM users WHERE username = $1", [
+    adminUsername,
+  ]);
+  let adminUser = rows[0];
+
   if (!adminUser) {
     console.log(`!!! 找不到管理者 ${adminUsername}，正在建立新的帳號...`);
     const passwordHash = await bcrypt.hash("randy1007", 10);
-    adminUser = {
-      id: `user_${Date.now()}`,
-      username: adminUsername,
-      passwordHash,
-      role: "admin",
-    };
-    db.data.users.push(adminUser);
-    await db.write();
+    const id = `user_${Date.now()}`;
+    await pool.query(
+      `INSERT INTO users(id, username, "passwordHash", role) VALUES($1, $2, $3, $4)`,
+      [id, adminUsername, passwordHash, "admin"]
+    );
     console.log(`!!! 管理者 ${adminUsername} 已成功建立。`);
   } else if (adminUser.role !== "admin") {
     console.log(`!!! 將管理者 ${adminUser.username} 的角色更正為 admin...`);
-    adminUser.role = "admin";
-    await db.write();
+    await pool.query("UPDATE users SET role = $1 WHERE username = $2", [
+      "admin",
+      adminUsername,
+    ]);
   }
 }
 
@@ -121,7 +171,13 @@ function authorizeAdmin(req, res, next) {
 app.post("/api/login", async (req, res, next) => {
   try {
     const { username, password } = req.body;
-    const user = db.data.users.find((u) => u.username === username);
+    // LowDB: db.data.users.find(...) -> PG: SELECT
+    const { rows } = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
+    const user = rows[0];
+
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       return res.status(401).json({ message: "帳號或密碼錯誤" });
     }
@@ -133,25 +189,25 @@ app.post("/api/login", async (req, res, next) => {
   }
 });
 
-app.get("/api/products", (req, res, next) => {
+app.get("/api/products", async (req, res, next) => {
   try {
-    // ▼▼▼ 關鍵修復 ▼▼▼
-    // 如果商品狀態為 'published' 或 'undefined' (代表是舊資料)，都將其視為上架商品
-    const publishedProducts = db.data.products.filter(
-      (p) => p.status === "published" || p.status === undefined
+    // LowDB: db.data.products.filter(...).sort(...) -> PG: SELECT ... WHERE ... ORDER BY
+    const { rows } = await pool.query(
+      `SELECT * FROM products WHERE status = 'published' ORDER BY "sortOrder" ASC`
     );
-    const sortedProducts = [...publishedProducts].sort(
-      (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
-    );
-    res.json(sortedProducts);
+    res.json(rows);
   } catch (error) {
     next(error);
   }
 });
 
-app.get("/api/products/:id", (req, res, next) => {
+app.get("/api/products/:id", async (req, res, next) => {
   try {
-    const product = db.data.products.find((p) => p.id === req.params.id);
+    // LowDB: db.data.products.find(...) -> PG: SELECT ... WHERE
+    const { rows } = await pool.query("SELECT * FROM products WHERE id = $1", [
+      req.params.id,
+    ]);
+    const product = rows[0];
     if (!product) return res.status(404).json({ message: "找不到該商品" });
     res.json(product);
   } catch (error) {
@@ -173,14 +229,29 @@ app.post("/api/orders", async (req, res, next) => {
     }
     const newOrder = {
       orderId: `ord_${Date.now()}`,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(),
       status: "待處理",
       isNew: true,
       activityLog: [],
       ...orderData,
     };
-    db.data.orders.push(newOrder);
-    await db.write();
+    // LowDB: db.data.orders.push(...) + db.write() -> PG: INSERT
+    await pool.query(
+      `INSERT INTO orders("orderId", "createdAt", status, "isNew", "activityLog", "paopaohuId", "lastFiveDigits", email, items, "totalAmount")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        newOrder.orderId,
+        newOrder.createdAt,
+        newOrder.status,
+        newOrder.isNew,
+        JSON.stringify(newOrder.activityLog),
+        newOrder.paopaohuId,
+        newOrder.lastFiveDigits,
+        newOrder.email,
+        JSON.stringify(newOrder.items),
+        newOrder.totalAmount,
+      ]
+    );
     sendEmailNotification({
       subject: `[新訂單通知] 訂單編號: ${newOrder.orderId}`,
       html: `<h2>新訂單通知</h2><p><strong>訂單編號:</strong> ${newOrder.orderId}</p><p><strong>跑跑虎ID:</strong> ${orderData.paopaohuId}</p><p><strong>總金額:</strong> ${orderData.totalAmount} TWD</p><p>請盡快登入後台處理。</p>`,
@@ -203,13 +274,25 @@ app.post("/api/requests", async (req, res, next) => {
     }
     const newRequest = {
       requestId: `req_${Date.now()}`,
-      receivedAt: new Date().toISOString(),
+      receivedAt: new Date(),
       status: "待報價",
       isNew: true,
       ...requestData,
     };
-    db.data.requests.push(newRequest);
-    await db.write();
+    // LowDB: db.data.requests.push(...) + db.write() -> PG: INSERT
+    await pool.query(
+      `INSERT INTO requests("requestId", "receivedAt", status, "isNew", "productUrl", "productName", "contactInfo")
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        newRequest.requestId,
+        newRequest.receivedAt,
+        newRequest.status,
+        newRequest.isNew,
+        newRequest.productUrl,
+        newRequest.productName,
+        newRequest.contactInfo,
+      ]
+    );
     sendEmailNotification({
       subject: `[新代採購請求] 來自: ${requestData.contactInfo}`,
       html: `<h2>新代採購請求</h2><p><strong>聯絡方式:</strong> ${requestData.contactInfo}</p><p><strong>商品名稱:</strong> ${requestData.productName}</p><p>請盡快登入後台處理。</p>`,
@@ -225,10 +308,12 @@ app.get("/api/orders/lookup", async (req, res, next) => {
     const { paopaohuId } = req.query;
     if (!paopaohuId)
       return res.status(400).json({ message: "請提供跑跑虎會員編號" });
-    const foundOrders = db.data.orders.filter(
-      (order) => order.paopaohuId === paopaohuId
+    // LowDB: db.data.orders.filter(...).reverse() -> PG: SELECT ... WHERE ... ORDER BY DESC
+    const { rows } = await pool.query(
+      `SELECT * FROM orders WHERE "paopaohuId" = $1 ORDER BY "createdAt" DESC`,
+      [paopaohuId]
     );
-    res.json(foundOrders.reverse());
+    res.json(rows);
   } catch (error) {
     next(error);
   }
@@ -236,49 +321,70 @@ app.get("/api/orders/lookup", async (req, res, next) => {
 
 app.get("/api/categories", async (req, res, next) => {
   try {
-    res.json(db.data.categories);
+    // LowDB: res.json(db.data.categories) -> PG: SELECT
+    const { rows } = await pool.query(
+      "SELECT * FROM categories ORDER BY name ASC"
+    );
+    res.json(rows);
   } catch (error) {
     next(error);
   }
 });
 
 // --- 受保護路由 (Protected Routes, 需登入) ---
-app.get("/api/notifications/summary", authenticateToken, (req, res, next) => {
-  try {
-    const newOrdersCount = db.data.orders.filter((o) => o.isNew).length;
-    const newRequestsCount = db.data.requests.filter((r) => r.isNew).length;
-    res.json({ newOrdersCount, newRequestsCount });
-  } catch (error) {
-    next(error);
+app.get(
+  "/api/notifications/summary",
+  authenticateToken,
+  async (req, res, next) => {
+    try {
+      // LowDB: db.data.orders.filter(...).length -> PG: SELECT COUNT
+      const { rows: orderRows } = await pool.query(
+        `SELECT COUNT(*) FROM orders WHERE "isNew" = true`
+      );
+      const { rows: requestRows } = await pool.query(
+        `SELECT COUNT(*) FROM requests WHERE "isNew" = true`
+      );
+      res.json({
+        newOrdersCount: parseInt(orderRows[0].count, 10),
+        newRequestsCount: parseInt(requestRows[0].count, 10),
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
-app.get("/api/dashboard-summary", authenticateToken, (req, res, next) => {
+app.get("/api/dashboard-summary", authenticateToken, async (req, res, next) => {
   try {
     const now = new Date();
     const todayStart = new Date(
       now.toLocaleString("en-US", { timeZone: "Asia/Taipei" })
     );
     todayStart.setHours(0, 0, 0, 0);
+
     const dayOfWeek = todayStart.getDay();
     const diff = todayStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    const thisWeekStart = new Date(new Date(todayStart).setDate(diff)); // 修正以避免影響 todayStart
+    const thisWeekStart = new Date(new Date(todayStart).setDate(diff));
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisYearStart = new Date(now.getFullYear(), 0, 1);
-    const getStats = (orders, startDate) => {
-      const filteredOrders = orders.filter(
-        (o) => new Date(o.createdAt) >= startDate
+
+    // LowDB: In-memory filter and reduce -> PG: Aggregation queries
+    const getStats = async (startDate) => {
+      const { rows } = await pool.query(
+        `SELECT COUNT(*), SUM("totalAmount") as sales FROM orders WHERE "createdAt" >= $1`,
+        [startDate]
       );
       return {
-        count: filteredOrders.length,
-        sales: filteredOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+        count: parseInt(rows[0].count, 10) || 0,
+        sales: parseFloat(rows[0].sales) || 0,
       };
     };
+
     res.json({
-      today: getStats(db.data.orders, todayStart),
-      thisWeek: getStats(db.data.orders, thisWeekStart),
-      thisMonth: getStats(db.data.orders, thisMonthStart),
-      thisYear: getStats(db.data.orders, thisYearStart),
+      today: await getStats(todayStart),
+      thisWeek: await getStats(thisWeekStart),
+      thisMonth: await getStats(thisMonthStart),
+      thisYear: await getStats(thisYearStart),
     });
   } catch (error) {
     next(error);
@@ -288,12 +394,21 @@ app.get("/api/dashboard-summary", authenticateToken, (req, res, next) => {
 app.patch("/api/user/password", authenticateToken, async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const user = db.data.users.find((u) => u.username === req.user.username);
+    const { rows } = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [req.user.username]
+    );
+    const user = rows[0];
+
     if (!user || !(await bcrypt.compare(currentPassword, user.passwordHash))) {
       return res.status(401).json({ message: "目前的密碼不正確" });
     }
-    user.passwordHash = await bcrypt.hash(newPassword, 10);
-    await db.write();
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    // LowDB: user.passwordHash = ... + db.write() -> PG: UPDATE
+    await pool.query(
+      `UPDATE users SET "passwordHash" = $1 WHERE username = $2`,
+      [newPasswordHash, req.user.username]
+    );
     res.json({ message: "密碼更新成功！" });
   } catch (error) {
     next(error);
@@ -305,12 +420,12 @@ app.get(
   "/api/admin/products",
   authenticateToken,
   authorizeAdmin,
-  (req, res, next) => {
+  async (req, res, next) => {
     try {
-      const sortedProducts = [...db.data.products].sort(
-        (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
+      const { rows } = await pool.query(
+        `SELECT * FROM products ORDER BY "sortOrder" ASC`
       );
-      res.json(sortedProducts);
+      res.json(rows);
     } catch (error) {
       next(error);
     }
@@ -337,10 +452,12 @@ app.post(
       if (!title || price === undefined)
         return res.status(400).json({ message: "商品標題和價格為必填項" });
 
-      const maxOrder = db.data.products.reduce(
-        (max, p) => Math.max(max, p.sortOrder || 0),
-        -1
+      // LowDB: db.data.products.reduce(...) -> PG: SELECT MAX
+      const { rows } = await pool.query(
+        `SELECT MAX("sortOrder") as max_order FROM products`
       );
+      const maxOrder = rows[0].max_order || -1;
+
       const newProduct = {
         id: `p${Date.now()}`,
         title,
@@ -354,8 +471,24 @@ app.post(
         tags: Array.isArray(tags) ? tags : [],
         sortOrder: maxOrder + 1,
       };
-      db.data.products.push(newProduct);
-      await db.write();
+
+      await pool.query(
+        `INSERT INTO products(id, title, price, category, "imageUrl", "serviceFee", "longDescription", stock, status, tags, "sortOrder")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        [
+          newProduct.id,
+          newProduct.title,
+          newProduct.price,
+          newProduct.category,
+          newProduct.imageUrl,
+          newProduct.serviceFee,
+          newProduct.longDescription,
+          newProduct.stock,
+          newProduct.status,
+          JSON.stringify(newProduct.tags),
+          newProduct.sortOrder,
+        ]
+      );
       res.status(201).json(newProduct);
     } catch (error) {
       next(error);
@@ -369,13 +502,7 @@ app.put(
   authorizeAdmin,
   async (req, res, next) => {
     try {
-      const productIndex = db.data.products.findIndex(
-        (p) => p.id === req.params.id
-      );
-      if (productIndex === -1)
-        return res.status(404).json({ message: "找不到該商品" });
-
-      const productToUpdate = db.data.products[productIndex];
+      const { id } = req.params;
       const {
         title,
         price,
@@ -389,23 +516,68 @@ app.put(
         sortOrder,
       } = req.body;
 
-      if (title !== undefined) productToUpdate.title = title;
-      if (price !== undefined) productToUpdate.price = Number(price);
-      if (category !== undefined) productToUpdate.category = category;
-      if (imageUrl !== undefined) productToUpdate.imageUrl = imageUrl;
-      if (serviceFee !== undefined)
-        productToUpdate.serviceFee = Number(serviceFee);
-      if (longDescription !== undefined)
-        productToUpdate.longDescription = longDescription;
-      if (stock !== undefined) productToUpdate.stock = Number(stock);
-      if (status !== undefined) productToUpdate.status = status;
-      if (tags !== undefined)
-        productToUpdate.tags = Array.isArray(tags) ? tags : [];
-      if (sortOrder !== undefined)
-        productToUpdate.sortOrder = Number(sortOrder);
+      // 動態建立 UPDATE 語句
+      const fields = [];
+      const values = [];
+      let queryIndex = 1;
 
-      await db.write();
-      res.json({ message: "商品更新成功", product: productToUpdate });
+      if (title !== undefined) {
+        fields.push(`title = $${queryIndex++}`);
+        values.push(title);
+      }
+      if (price !== undefined) {
+        fields.push(`price = $${queryIndex++}`);
+        values.push(price);
+      }
+      if (category !== undefined) {
+        fields.push(`category = $${queryIndex++}`);
+        values.push(category);
+      }
+      if (imageUrl !== undefined) {
+        fields.push(`"imageUrl" = $${queryIndex++}`);
+        values.push(imageUrl);
+      }
+      if (serviceFee !== undefined) {
+        fields.push(`"serviceFee" = $${queryIndex++}`);
+        values.push(serviceFee);
+      }
+      if (longDescription !== undefined) {
+        fields.push(`"longDescription" = $${queryIndex++}`);
+        values.push(longDescription);
+      }
+      if (stock !== undefined) {
+        fields.push(`stock = $${queryIndex++}`);
+        values.push(stock);
+      }
+      if (status !== undefined) {
+        fields.push(`status = $${queryIndex++}`);
+        values.push(status);
+      }
+      if (tags !== undefined) {
+        fields.push(`tags = $${queryIndex++}`);
+        values.push(JSON.stringify(tags));
+      }
+      if (sortOrder !== undefined) {
+        fields.push(`"sortOrder" = $${queryIndex++}`);
+        values.push(sortOrder);
+      }
+
+      if (fields.length === 0) {
+        return res.status(400).json({ message: "沒有提供任何要更新的資料" });
+      }
+
+      values.push(id);
+      const queryString = `UPDATE products SET ${fields.join(
+        ", "
+      )} WHERE id = $${queryIndex} RETURNING *`;
+
+      const { rows } = await pool.query(queryString, values);
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: "找不到該商品" });
+      }
+
+      res.json({ message: "商品更新成功", product: rows[0] });
     } catch (error) {
       next(error);
     }
@@ -418,10 +590,14 @@ app.delete(
   authorizeAdmin,
   async (req, res, next) => {
     try {
-      const i = db.data.products.findIndex((p) => p.id === req.params.id);
-      if (i === -1) return res.status(404).json({ message: "找不到該商品" });
-      db.data.products.splice(i, 1);
-      await db.write();
+      // LowDB: findIndex + splice -> PG: DELETE
+      const { rowCount } = await pool.query(
+        "DELETE FROM products WHERE id = $1",
+        [req.params.id]
+      );
+      if (rowCount === 0) {
+        return res.status(404).json({ message: "找不到該商品" });
+      }
       res.status(200).json({ message: "商品刪除成功" });
     } catch (error) {
       next(error);
@@ -438,11 +614,16 @@ app.patch(
       const { orderedIds } = req.body;
       if (!Array.isArray(orderedIds))
         return res.status(400).json({ message: "資料格式不正確" });
-      orderedIds.forEach((id, index) => {
-        const product = db.data.products.find((p) => p.id === id);
-        if (product) product.sortOrder = index;
-      });
-      await db.write();
+
+      // LowDB: forEach + find + update -> PG: Loop of UPDATEs
+      // For more complex scenarios, a transaction would be ideal here.
+      for (let i = 0; i < orderedIds.length; i++) {
+        await pool.query(`UPDATE products SET "sortOrder" = $1 WHERE id = $2`, [
+          i,
+          orderedIds[i],
+        ]);
+      }
+
       res.json({ message: "商品順序已更新" });
     } catch (error) {
       next(error);
@@ -456,16 +637,16 @@ app.get(
   authorizeAdmin,
   async (req, res, next) => {
     try {
-      const ordersToReturn = [...db.data.orders].reverse();
-      let updated = false;
-      ordersToReturn.forEach((order) => {
-        if (order.isNew) {
-          order.isNew = false;
-          updated = true;
-        }
-      });
-      if (updated) await db.write();
-      res.json(ordersToReturn);
+      // LowDB: [...db.data.orders].reverse() -> PG: SELECT ... ORDER BY DESC
+      const { rows } = await pool.query(
+        `SELECT * FROM orders ORDER BY "createdAt" DESC`
+      );
+
+      // LowDB: forEach to update isNew + db.write() -> PG: UPDATE ... WHERE
+      // This is a "fire and forget" update, we don't need to wait for it to return the data.
+      pool.query(`UPDATE orders SET "isNew" = false WHERE "isNew" = true`);
+
+      res.json(rows);
     } catch (error) {
       next(error);
     }
@@ -480,23 +661,35 @@ app.patch(
     try {
       const { orderId } = req.params;
       const { status: newStatus } = req.body;
-      const orderToUpdate = db.data.orders.find((o) => o.orderId === orderId);
+
+      const { rows } = await pool.query(
+        `SELECT * FROM orders WHERE "orderId" = $1`,
+        [orderId]
+      );
+      const orderToUpdate = rows[0];
+
       if (!orderToUpdate)
         return res.status(404).json({ message: "找不到該訂單" });
 
       const oldStatus = orderToUpdate.status;
       if (oldStatus !== newStatus) {
-        orderToUpdate.status = newStatus;
         const logEntry = {
           timestamp: new Date().toISOString(),
           updatedBy: req.user.username,
           action: `狀態由「${oldStatus}」更新為「${newStatus}」`,
         };
-        orderToUpdate.activityLog = orderToUpdate.activityLog || [];
-        orderToUpdate.activityLog.push(logEntry);
-        await db.write();
+
+        const newActivityLog = orderToUpdate.activityLog || [];
+        newActivityLog.push(logEntry);
+
+        const { rows: updatedRows } = await pool.query(
+          `UPDATE orders SET status = $1, "activityLog" = $2 WHERE "orderId" = $3 RETURNING *`,
+          [newStatus, JSON.stringify(newActivityLog), orderId]
+        );
+        res.json({ message: "訂單狀態更新成功", order: updatedRows[0] });
+      } else {
+        res.json({ message: "訂單狀態無變更", order: orderToUpdate });
       }
-      res.json({ message: "訂單狀態更新成功", order: orderToUpdate });
     } catch (error) {
       next(error);
     }
@@ -510,12 +703,13 @@ app.delete(
   async (req, res, next) => {
     try {
       const { orderId } = req.params;
-      const initialCount = db.data.orders.length;
-      db.data.orders = db.data.orders.filter((o) => o.orderId !== orderId);
-      if (db.data.orders.length === initialCount) {
+      const { rowCount } = await pool.query(
+        `DELETE FROM orders WHERE "orderId" = $1`,
+        [orderId]
+      );
+      if (rowCount === 0) {
         return res.status(404).json({ message: "找不到該訂單" });
       }
-      await db.write();
       res.status(200).json({ message: "訂單刪除成功" });
     } catch (error) {
       next(error);
@@ -533,15 +727,12 @@ app.post(
       if (!Array.isArray(orderIds) || orderIds.length === 0) {
         return res.status(400).json({ message: "請提供要刪除的訂單 ID" });
       }
-      const initialCount = db.data.orders.length;
-      db.data.orders = db.data.orders.filter(
-        (o) => !orderIds.includes(o.orderId)
+      // LowDB: filter -> PG: DELETE ... WHERE ... IN
+      const { rowCount } = await pool.query(
+        `DELETE FROM orders WHERE "orderId" = ANY($1::text[])`,
+        [orderIds]
       );
-      const deletedCount = initialCount - db.data.orders.length;
-      if (deletedCount > 0) {
-        await db.write();
-      }
-      res.status(200).json({ message: `成功刪除 ${deletedCount} 筆訂單` });
+      res.status(200).json({ message: `成功刪除 ${rowCount} 筆訂單` });
     } catch (error) {
       next(error);
     }
@@ -554,16 +745,11 @@ app.get(
   authorizeAdmin,
   async (req, res, next) => {
     try {
-      const requestsToReturn = [...db.data.requests].reverse();
-      let updated = false;
-      requestsToReturn.forEach((request) => {
-        if (request.isNew) {
-          request.isNew = false;
-          updated = true;
-        }
-      });
-      if (updated) await db.write();
-      res.json(requestsToReturn);
+      const { rows } = await pool.query(
+        `SELECT * FROM requests ORDER BY "receivedAt" DESC`
+      );
+      pool.query(`UPDATE requests SET "isNew" = false WHERE "isNew" = true`);
+      res.json(rows);
     } catch (error) {
       next(error);
     }
@@ -578,28 +764,34 @@ app.patch(
     try {
       const { requestId } = req.params;
       const { status } = req.body;
-      const requestToUpdate = db.data.requests.find(
-        (r) => r.requestId === requestId
+      const { rows } = await pool.query(
+        `UPDATE requests SET status = $1 WHERE "requestId" = $2 RETURNING *`,
+        [status, requestId]
       );
-      if (!requestToUpdate)
+      if (rows.length === 0) {
         return res.status(404).json({ message: "找不到該請求" });
-      requestToUpdate.status = status;
-      await db.write();
-      res.json({ message: "請求狀態更新成功", request: requestToUpdate });
+      }
+      res.json({ message: "請求狀態更新成功", request: rows[0] });
     } catch (error) {
       next(error);
     }
   }
 );
 
-app.get("/api/users", authenticateToken, authorizeAdmin, (req, res, next) => {
-  try {
-    const users = db.data.users.map(({ passwordHash, ...user }) => user);
-    res.json(users);
-  } catch (error) {
-    next(error);
+app.get(
+  "/api/users",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res, next) => {
+    try {
+      // LowDB: map to remove password -> PG: SELECT only the needed columns
+      const { rows } = await pool.query("SELECT id, username, role FROM users");
+      res.json(rows);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 app.post(
   "/api/users",
@@ -610,21 +802,27 @@ app.post(
       const { username, password, role } = req.body;
       if (!username || !password || !role)
         return res.status(400).json({ message: "帳號、密碼和角色為必填項" });
-      if (db.data.users.find((u) => u.username === username))
+
+      const { rows: existingUsers } = await pool.query(
+        "SELECT id FROM users WHERE username = $1",
+        [username]
+      );
+      if (existingUsers.length > 0)
         return res.status(409).json({ message: "此帳號已存在" });
 
       const passwordHash = await bcrypt.hash(password, 10);
       const newUser = {
         id: `user_${Date.now()}`,
         username,
-        passwordHash,
         role,
       };
-      db.data.users.push(newUser);
-      await db.write();
 
-      const { passwordHash: _, ...userToReturn } = newUser;
-      res.status(201).json(userToReturn);
+      await pool.query(
+        `INSERT INTO users(id, username, "passwordHash", role) VALUES ($1, $2, $3, $4)`,
+        [newUser.id, newUser.username, passwordHash, newUser.role]
+      );
+
+      res.status(201).json(newUser);
     } catch (error) {
       next(error);
     }
@@ -641,12 +839,14 @@ app.delete(
       if (username === "randy")
         return res.status(403).json({ message: "無法刪除最高管理員帳號" });
 
-      const userIndex = db.data.users.findIndex((u) => u.username === username);
-      if (userIndex === -1)
+      const { rowCount } = await pool.query(
+        "DELETE FROM users WHERE username = $1",
+        [username]
+      );
+
+      if (rowCount === 0)
         return res.status(404).json({ message: "找不到該使用者" });
 
-      db.data.users.splice(userIndex, 1);
-      await db.write();
       res.status(200).json({ message: "使用者刪除成功" });
     } catch (error) {
       next(error);
@@ -662,12 +862,19 @@ app.post(
     try {
       const { name } = req.body;
       if (!name) return res.status(400).json({ message: "分類名稱為必填項" });
-      if (db.data.categories.find((c) => c.name === name))
+
+      const { rows: existing } = await pool.query(
+        "SELECT id FROM categories WHERE name = $1",
+        [name]
+      );
+      if (existing.length > 0)
         return res.status(409).json({ message: "此分類已存在" });
 
       const newCategory = { id: `cat_${Date.now()}`, name };
-      db.data.categories.push(newCategory);
-      await db.write();
+      await pool.query("INSERT INTO categories(id, name) VALUES ($1, $2)", [
+        newCategory.id,
+        newCategory.name,
+      ]);
       res.status(201).json(newCategory);
     } catch (error) {
       next(error);
@@ -682,12 +889,13 @@ app.delete(
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const categoryIndex = db.data.categories.findIndex((c) => c.id === id);
-      if (categoryIndex === -1)
+      const { rowCount } = await pool.query(
+        "DELETE FROM categories WHERE id = $1",
+        [id]
+      );
+      if (rowCount === 0)
         return res.status(404).json({ message: "找不到該分類" });
 
-      db.data.categories.splice(categoryIndex, 1);
-      await db.write();
       res.status(200).json({ message: "分類刪除成功" });
     } catch (error) {
       next(error);
@@ -708,8 +916,14 @@ app.use((err, req, res, next) => {
 });
 
 (async () => {
-  await initializeAdminUser();
-  app.listen(port, () => {
-    console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
-  });
+  try {
+    await initializeDatabase();
+    await initializeAdminUser();
+    app.listen(port, () => {
+      console.log(`伺服器成功啟動！正在監聽 http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("!!! 伺服器啟動失敗 !!!", error);
+    process.exit(1);
+  }
 })();
