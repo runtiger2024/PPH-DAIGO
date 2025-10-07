@@ -193,7 +193,7 @@ app.get("/", async (req, res, next) => {
   try {
     // 1. 從資料庫讀取預設網站設定
     const { rows } = await pool.query(
-      "SELECT * FROM sites WHERE site_id = 'default_site'"
+      "SELECT * FROM sites WHERE owner_username IS NOT NULL LIMIT 1"
     );
     const siteConfig = rows[0];
 
@@ -201,7 +201,9 @@ app.get("/", async (req, res, next) => {
       // 如果資料庫沒設定，顯示錯誤
       return res
         .status(404)
-        .send("找不到網站設定。請確認資料庫中有名為 'default_site' 的紀錄。");
+        .send(
+          "找不到網站設定。請確認資料庫中至少有一筆網站設定且已指定管理者(owner_username)。"
+        );
     }
 
     // 2. 使用 res.render() 渲染頁面
