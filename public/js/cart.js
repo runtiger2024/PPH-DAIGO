@@ -1,16 +1,10 @@
-// --- js/cart.js (Class-based UI 優化版) ---
+// --- js/cart-helpers.js (由 cart.js 優化而來) ---
 
 const Cart = {
   // 從 localStorage 獲取購物車資料
   get() {
     const cartJson = localStorage.getItem("shoppingCart");
-    // 增加一個錯誤處理，如果 localStorage 的資料格式不對，就回傳空陣列
-    try {
-      return cartJson ? JSON.parse(cartJson) : [];
-    } catch (e) {
-      console.error("解析購物車資料失敗:", e);
-      return [];
-    }
+    return cartJson ? JSON.parse(cartJson) : [];
   },
 
   // 將購物車資料儲存到 localStorage
@@ -92,20 +86,14 @@ const Cart = {
     const cartCountEl = document.getElementById("cart-count");
     if (cartCountEl) {
       const cart = this.get();
+      // 計算總數量而非項目種類數
       const totalQuantity = cart.reduce(
         (total, item) => total + item.quantity,
         0
       );
       cartCountEl.textContent = totalQuantity;
-
-      // ================================================================
-      // --- 核心優化點 ---
-      // 舊寫法: cartCountEl.style.display = totalQuantity > 0 ? 'block' : 'none';
-      // 新寫法: 使用 classList.toggle 來控制 '.is-hidden' class。
-      // 當 totalQuantity <= 0 為 true 時，新增 .is-hidden class，反之則移除。
-      // 這讓 JS 只負責邏輯，外觀完全交給 CSS。
-      // ================================================================
-      cartCountEl.classList.toggle("is-hidden", totalQuantity <= 0);
+      // 如果數量大於 0，顯示角標
+      cartCountEl.style.display = totalQuantity > 0 ? "block" : "none";
     }
   },
 };

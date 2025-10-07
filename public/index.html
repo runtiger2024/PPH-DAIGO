@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <header class="site-header" id="site-header">
+    <header class="site-header">
       <div class="header-content">
         <a href="index.html" class="site-logo-link" title="返回首頁">
           <img
@@ -22,14 +22,10 @@
           />
         </a>
 
-        <nav id="main-navigation" class="main-nav">
-          <ul class="nav-list">
-            <li>
-              <a href="index.html" class="nav-link-item active">批發貨源</a>
-            </li>
-            <li><a href="request.html" class="nav-link-item">代採購</a></li>
-            <li><a href="lookup.html" class="nav-link-item">訂單查詢</a></li>
-          </ul>
+        <nav class="main-nav desktop-nav">
+          <a href="index.html" class="nav-link-item active">批發貨源</a>
+          <a href="request.html" class="nav-link-item">代採購</a>
+          <a href="lookup.html" class="nav-link-item">訂單查詢</a>
         </nav>
 
         <div class="header-actions">
@@ -46,14 +42,14 @@
                 d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
               />
             </svg>
-            <span id="cart-count" class="cart-count-badge is-hidden">0</span>
+            <span id="cart-count" class="cart-count-badge" style="display: none"
+              >0</span
+            >
           </a>
           <button
             id="hamburger-btn"
             class="hamburger-btn"
-            aria-label="開啟或關閉主選單"
-            aria-controls="main-navigation"
-            aria-expanded="false"
+            aria-label="開啟選單"
           >
             <span></span>
             <span></span>
@@ -61,12 +57,18 @@
           </button>
         </div>
       </div>
+      <div id="mobile-menu" class="mobile-menu">
+        <a href="index.html">批發貨源</a>
+        <a href="request.html">代採購</a>
+        <a href="lookup.html">訂單查詢</a>
+        <hr />
+      </div>
     </header>
 
     <main class="container">
       <div id="main-content-view">
         <section class="important-reminder" aria-labelledby="reminder-title">
-          <h2 id="reminder-title">⚠️ 重要提醒，請務必詳讀 ⚠️</h2>
+          <h3 id="reminder-title">⚠️ 重要提醒，請務必詳讀 ⚠️</h3>
           <p>
             <strong>1. 關於價格：</strong>
             頁面顯示的【台幣價格】即為您需要支付的全部費用，已包含代購服務費。
@@ -113,7 +115,7 @@
         </section>
       </div>
 
-      <div id="product-detail-container" class="is-hidden"></div>
+      <div id="product-detail-container" style="display: none"></div>
     </main>
 
     <a
@@ -136,7 +138,6 @@
       </div>
     </footer>
 
-    <script src="js/main.js" defer></script>
     <script src="js/cart.js" defer></script>
     <script src="js/admin-main.js" defer></script>
     <script src="js/products.js" defer></script>

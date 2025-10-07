@@ -1,4 +1,4 @@
-/* --- 愛馬仕橘主題 V7 - 結構優化與 DRY 原則實踐版 --- */
+/* --- 愛馬仕橘主題 V6 - 行動裝置最終修正版 --- */
 
 /* 1. 引入 Google Fonts (註：&display=swap 是個好習慣，能加速文字顯示) */
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap");
@@ -81,12 +81,6 @@ body {
   line-height: 1.7;
   -webkit-font-smoothing: antialiased; /* 讓字體在 Mac/iOS 上更清晰 */
 }
-
-/* 優化說明：新增 body.menu-is-open，當手機選單開啟時鎖定背景滾動，提升使用者體驗 */
-body.menu-is-open {
-  overflow: hidden;
-}
-
 .container {
   width: 92%;
   max-width: 1280px;
@@ -133,11 +127,6 @@ img {
   border-radius: var(--border-radius-sm);
 }
 
-/* 優化說明：新增通用 class，用於取代 JS 的 style.display 控制 */
-.is-hidden {
-  display: none !important;
-}
-
 /* --- 通用元件 (Buttons, Forms) --- */
 /* 將通用樣式抽離，再用特定 class 覆蓋，是優秀的 CSS 架構 */
 .btn-primary,
@@ -158,7 +147,6 @@ img {
   color: var(--white-color);
   box-shadow: var(--shadow-sm);
 }
-/* 優化說明 (DRY): 將所有按鈕共用的 hover, active 效果合併成一條規則 */
 .btn-primary:hover,
 .btn-secondary:hover,
 .btn-danger:hover,
@@ -245,7 +233,7 @@ img {
   grid-column: 1 / -1;
 }
 
-/* --- 頁首 / 導覽列 (結構優化核心) --- */
+/* --- 頁首 / 導覽列 --- */
 .site-header {
   background-color: var(--header-bg);
   padding: var(--spacing-2) 0;
@@ -263,38 +251,11 @@ img {
   align-items: center;
   min-height: 50px;
 }
-.site-logo {
-  height: 45px;
-  transition: transform 0.3s ease;
-}
-.site-logo:hover {
-  transform: scale(1.05);
-}
-/* 桌面版導覽列樣式 */
-.main-nav {
-  display: flex; /* 確保桌面版可見 */
+.desktop-nav {
+  display: flex;
   justify-content: center;
   flex-grow: 1;
-}
-.main-nav .nav-list {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
   gap: var(--spacing-4);
-}
-.main-nav .nav-link-item {
-  color: var(--header-text-color);
-  font-family: var(--font-secondary);
-  font-weight: 500;
-  padding-bottom: var(--spacing-2);
-  border-bottom: 3px solid transparent;
-  transition: var(--transition-smooth);
-}
-.main-nav .nav-link-item:hover,
-.main-nav .nav-link-item.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
 }
 .header-actions {
   display: flex;
@@ -302,7 +263,30 @@ img {
   gap: var(--spacing-4);
 }
 .hamburger-btn {
-  display: none; /* 桌面版預設隱藏 */
+  display: none;
+}
+.mobile-menu {
+  display: none;
+}
+.site-logo {
+  height: 45px;
+  transition: transform 0.3s ease;
+}
+.site-logo:hover {
+  transform: scale(1.05);
+}
+.main-nav a {
+  color: var(--header-text-color);
+  font-family: var(--font-secondary);
+  font-weight: 500;
+  padding-bottom: var(--spacing-2);
+  border-bottom: 3px solid transparent;
+  transition: var(--transition-smooth);
+}
+.main-nav a:hover,
+.main-nav a.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
 }
 .cart-nav-link {
   position: relative;
@@ -318,8 +302,6 @@ img {
 .cart-nav-link:hover .cart-icon {
   color: var(--primary-color);
 }
-
-/* 優化說明 (DRY): .notification-badge 樣式與 .cart-count-badge 完全相同，合併處理 */
 .cart-count-badge,
 .notification-badge {
   position: absolute;
@@ -830,13 +812,14 @@ img {
     font-size: 1.5rem;
   }
 
-  /* --- 手機版頁首 & 整合後的導覽列 (關鍵修正) --- */
+  /* --- 手機版頁首 & 漢堡選單 (關鍵修正) --- */
   .header-content {
-    /* 優化：將 header 左右 padding 移到這裡統一管理 */
     padding: 0 var(--spacing-3);
   }
+  .desktop-nav {
+    display: none !important; /* 強制隱藏電腦版導覽列 */
+  }
 
-  /* 漢堡按鈕顯示 */
   .hamburger-btn {
     display: flex;
     flex-direction: column;
@@ -847,7 +830,7 @@ img {
     border: none;
     cursor: pointer;
     padding: 0;
-    z-index: 1051; /* 確保在選單之上 */
+    z-index: 1051;
   }
   .hamburger-btn span {
     width: 100%;
@@ -858,7 +841,7 @@ img {
     position: relative;
     transform-origin: 1px;
   }
-  /* 漢堡按鈕變 X 的動畫 (由 JS 切換 .is-active class) */
+  /* 漢堡按鈕變 X 的動畫 */
   .hamburger-btn.is-active span:nth-child(1) {
     transform: rotate(45deg);
   }
@@ -870,9 +853,11 @@ img {
     transform: rotate(-45deg);
   }
 
-  /* 整合後的導覽列手機樣式 */
-  .main-nav {
-    /* 變身為全螢幕覆蓋層 */
+  .mobile-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     position: fixed;
     top: 0;
     left: 0;
@@ -880,34 +865,28 @@ img {
     height: 100%;
     background-color: rgba(253, 252, 249, 0.95);
     backdrop-filter: blur(8px);
-
-    /* 預設狀態為隱藏在畫面右側 */
+    padding-top: 100px;
     transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
-    z-index: 1050; /* 層級低於漢堡按鈕，高於頁面內容 */
-
-    /* 內部項目置中 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1), visibility 0.4s;
+    z-index: 1050;
+    visibility: hidden;
   }
-  /* 當 body 被加上 .menu-is-open class 時，將選單滑入畫面 */
-  body.menu-is-open .main-nav {
+  .mobile-menu.is-active {
     transform: translateX(0);
+    visibility: visible;
   }
-
-  .main-nav .nav-list {
-    flex-direction: column; /* 垂直排列 */
-    align-items: center;
-    gap: var(--spacing-3);
-  }
-  .main-nav .nav-link-item {
+  .mobile-menu a {
+    padding: var(--spacing-3) var(--spacing-5);
     font-size: 1.5rem;
-    padding: var(--spacing-2) var(--spacing-4);
-    border-bottom: none; /* 手機版不需要底線 */
+    font-family: var(--font-secondary);
+    color: var(--header-text-color);
+    text-decoration: none;
   }
-  .main-nav .nav-link-item.active {
-    color: var(--primary-color); /* 當前頁面高亮 */
+  .mobile-menu hr {
+    width: 80%;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: var(--spacing-3) auto;
   }
 
   /* --- 商品列表：雙欄佈局 --- */
@@ -937,17 +916,6 @@ img {
   .product-actions .btn-primary {
     padding: var(--spacing-2);
     font-size: 0.9rem;
-  }
-
-  /* --- 手機版 TikTok 影片裁切修正 --- */
-  .product-media-container iframe {
-    /* 在手機版窄螢幕下，我們需要強制 iframe 遵守容器的尺寸。
-      這個修正會覆蓋掉電腦版的 transform 置中樣式，
-      改回更簡單、更穩定的 top:0, left:0 定位方式。
-    */
-    top: 0;
-    left: 0;
-    transform: none; /* 關鍵！移除電腦版的 transform 置中效果 */
   }
 
   /* --- 結帳頁面美化 (卡片式) --- */
@@ -1051,5 +1019,22 @@ img {
     font-weight: bold;
     margin-right: auto;
     text-align: left;
+  }
+}
+
+/* ================================================================ */
+/* --- 手機版 TikTok 影片裁切最終修正 --- */
+/* (這段必須放在檔案最底部，以確保優先級) */
+/* ================================================================ */
+@media (max-width: 768px) {
+  /*
+    在手機版窄螢幕下，我們需要強制 iframe 遵守容器的尺寸。
+    這個修正會覆蓋掉電腦版的 transform 置中樣式，
+    改回更簡單、更穩定的 top:0, left:0 定位方式。
+  */
+  .product-media-container iframe {
+    top: 0;
+    left: 0;
+    transform: none; /* 關鍵！移除電腦版的 transform 置中效果 */
   }
 }
