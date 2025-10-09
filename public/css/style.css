@@ -983,6 +983,12 @@ img {
   .cart-table td:last-child {
     border-bottom: none;
   }
+  .cart-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    margin-right: auto;
+    text-align: left;
+  }
   .cart-summary {
     text-align: left;
     padding: var(--spacing-3);

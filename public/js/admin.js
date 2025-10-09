@@ -103,13 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async fetchAndRenderProducts() {
       try {
-<<<<<<< HEAD
         const response = await fetch(
           `${this.config.apiBaseUrl}/api/admin/products`
         );
-=======
-        const response = await fetch(`${this.config.apiBaseUrl}/api/products`);
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         if (!response.ok) throw new Error("無法獲取商品列表");
         const products = await response.json();
 
@@ -129,15 +125,9 @@ document.addEventListener("DOMContentLoaded", () => {
             (product) => `
                         <tr data-id="${product.id}">
                             <td data-label="預覽">${
-<<<<<<< HEAD
                               product.imageUrls && isVideo(product.imageUrls[0])
                                 ? `<video src="${product.imageUrls[0]}" controls muted style="width: 100px; height: 100px;"></video>`
                                 : `<img src="${product.imageUrls[0]}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover;">`
-=======
-                              isVideo(product.imageUrl)
-                                ? `<video src="${product.imageUrl}" controls muted style="width: 100px; height: 100px;"></video>`
-                                : `<img src="${product.imageUrl}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover;">`
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
                             }</td>
                             <td data-label="分類">${product.category}</td>
                             <td data-label="名稱">${product.title}</td>
@@ -189,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const form = event.target;
       const submitButton = form.querySelector('button[type="submit"]');
 
-<<<<<<< HEAD
       const imageUrls = [
         document.getElementById("add-imageUrl1").value,
         document.getElementById("add-imageUrl2").value,
@@ -198,8 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("add-imageUrl5").value,
       ].filter(Boolean); // 過濾掉空字串
 
-=======
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       const newProduct = {
         category: document.getElementById("add-category").value,
         title: document.getElementById("add-title").value,
@@ -208,23 +195,14 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("add-serviceFee").value,
           10
         ),
-<<<<<<< HEAD
         imageUrls: imageUrls, // <--- 變更: 傳遞陣列
-=======
-        imageUrl: document.getElementById("add-imageUrl").value,
-        // 新增欄位
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         longDescription: document.getElementById("add-longDescription").value,
         stock: parseInt(document.getElementById("add-stock").value, 10),
         status: document.getElementById("add-status").value,
         tags: document
           .getElementById("add-tags")
           .value.split(/[,，\s]+/)
-<<<<<<< HEAD
           .filter(Boolean),
-=======
-          .filter(Boolean), // 用逗號或空白分隔並過濾空字串
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       };
 
       submitButton.disabled = true;
@@ -291,7 +269,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-price").value = product.price;
         document.getElementById("edit-serviceFee").value =
           product.serviceFee || 0;
-<<<<<<< HEAD
 
         // <--- 變更: 填充多個圖片輸入框
         document.getElementById("edit-imageUrl1").value =
@@ -305,10 +282,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-imageUrl5").value =
           product.imageUrls[4] || "";
 
-=======
-        document.getElementById("edit-imageUrl").value = product.imageUrl;
-        // 填充新增欄位
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         document.getElementById("edit-longDescription").value =
           product.longDescription || "";
         document.getElementById("edit-stock").value = product.stock || 0;
@@ -335,7 +308,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const submitButton = form.querySelector('button[type="submit"]');
       const productId = this.elements.editProductId.value;
 
-<<<<<<< HEAD
       const imageUrls = [
         document.getElementById("edit-imageUrl1").value,
         document.getElementById("edit-imageUrl2").value,
@@ -344,8 +316,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-imageUrl5").value,
       ].filter(Boolean); // 過濾掉空字串
 
-=======
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       const updatedProduct = {
         category: document.getElementById("edit-category").value,
         title: document.getElementById("edit-title").value,
@@ -354,12 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("edit-serviceFee").value,
           10
         ),
-<<<<<<< HEAD
         imageUrls: imageUrls, // <--- 變更: 傳遞陣列
-=======
-        imageUrl: document.getElementById("edit-imageUrl").value,
-        // 新增欄位
->>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         longDescription: document.getElementById("edit-longDescription").value,
         stock: parseInt(document.getElementById("edit-stock").value, 10),
         status: document.getElementById("edit-status").value,
