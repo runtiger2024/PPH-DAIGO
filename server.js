@@ -572,6 +572,7 @@ app.post(
         stock: Number(stock) || 0,
         status: status || "published",
         tags: Array.isArray(tags) ? tags : [],
+        // [最終修正] 確保在資料庫為空時，maxOrder 為 null 的情況下也能正常運作
         sortOrder: (maxOrder === null ? -1 : maxOrder) + 1,
       };
 
