@@ -488,11 +488,7 @@ img {
   box-shadow: var(--shadow-lg);
 }
 .product-media-container-lg .tiktok-embed-lg,
-
 .product-media-container-lg img.main-product-image {
-
-.product-media-container-lg img {
-
   position: absolute;
   top: 0;
   left: 0;
@@ -513,6 +509,7 @@ img {
 .product-thumbnail.active {
   border-color: var(--primary-color);
 }
+
 .product-detail-info {
   display: flex;
   flex-direction: column;
@@ -815,12 +812,9 @@ img {
   .product-detail-view {
     grid-template-columns: 1fr;
   }
-
   .product-media-gallery {
     flex-direction: column-reverse; /* 讓縮圖在主圖上方 */
   }
-
-
 }
 
 @media (max-width: 768px) {
@@ -989,14 +983,6 @@ img {
   .cart-table td:last-child {
     border-bottom: none;
   }
-
-  .cart-table td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    text-align: left;
-    margin-right: auto;
-  }
-
   .cart-summary {
     text-align: left;
     padding: var(--spacing-3);
