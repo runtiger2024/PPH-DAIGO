@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("add-imageUrl3").value,
         document.getElementById("add-imageUrl4").value,
         document.getElementById("add-imageUrl5").value,
-      ].filter(Boolean); // 過濾掉空字串
+      ].filter(Boolean);
 
       const newProduct = {
         category: document.getElementById("add-category").value,
