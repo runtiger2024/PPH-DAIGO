@@ -583,13 +583,11 @@ app.post(
           newProduct.title,
           newProduct.price,
           newProduct.category,
-          // [最終修正] 對 JSONB 欄位手動進行 stringify，確保資料庫驅動程式能正確處理
           JSON.stringify(newProduct.imageUrls),
           newProduct.serviceFee,
           newProduct.longDescription,
           newProduct.stock,
           newProduct.status,
-          // [最終修正] 對 JSONB 欄位手動进行 stringify
           JSON.stringify(newProduct.tags),
           newProduct.sortOrder,
         ]
@@ -639,7 +637,6 @@ app.put(
       }
       if (imageUrls !== undefined) {
         fields.push(`"imageUrls" = $${queryIndex++}`);
-        // [最終修正] 同步修正更新邏輯
         values.push(JSON.stringify(imageUrls));
       }
       if (serviceFee !== undefined) {
@@ -660,7 +657,6 @@ app.put(
       }
       if (tags !== undefined) {
         fields.push(`tags = $${queryIndex++}`);
-        // [最終修正] 同步修正更新邏輯
         values.push(JSON.stringify(tags));
       }
       if (sortOrder !== undefined) {
