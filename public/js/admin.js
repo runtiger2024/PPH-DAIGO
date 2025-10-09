@@ -1,4 +1,4 @@
-// --- js/admin.js (深度優化與修正版) ---
+// --- js/admin.js (最終修正與多圖片支援版) ---
 
 document.addEventListener("DOMContentLoaded", () => {
   const AdminApp = {
@@ -77,7 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
     async fetchAndPopulateCategories() {
       try {
         const response = await fetch(
-          `${this.config.apiBaseUrl}/api/categories`
+          `${this.config.apiBaseUrl}/api/categories`,
+          {
+            headers: this.config.authHeaders,
+          }
         );
         if (!response.ok) throw new Error("無法獲取分類");
         this.state.availableCategories = await response.json();
@@ -86,8 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         this.populateCategorySelect(this.elements.editCategorySelect);
       } catch (error) {
         console.error(error);
-        this.elements.addCategorySelect.innerHTML =
-          '<option value="">無法載入分類</option>';
+        alert(`載入分類失敗: ${error.message}`);
       }
     },
 
@@ -101,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async fetchAndRenderProducts() {
       try {
-        // [修正] 加上 headers 進行授權，解決 401 Unauthorized 錯誤
         const response = await fetch(
           `${this.config.apiBaseUrl}/api/admin/products`,
           {
@@ -109,12 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
         if (response.status === 401) {
-          throw new Error("授權失敗，無法獲取商品列表。請嘗試重新登入。");
+          throw new Error("授權失敗，請重新登入。");
         }
         if (!response.ok) throw new Error("無法獲取商品列表");
         const products = await response.json();
 
-        // [優化] 確保與 admin.html 的 table antd> 欄位完全對應
         this.elements.productListBody.innerHTML = products
           .map(
             (product) => `
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         this.initializeSortable();
       } catch (error) {
         console.error("錯誤:", error);
-        this.elements.productListBody.innerHTML = `<tr><td colspan="6" style="color: red; text-align: center;">${error.message}</td></tr>`;
+        this.elements.productListBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">${error.message}</td></tr>`;
       }
     },
 
@@ -169,7 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const form = event.target;
       const submitButton = form.querySelector('button[type="submit"]');
 
-      // [修正] 收集 5 個圖片網址欄位
       const imageUrls = [
         document.getElementById("add-imageUrl1").value,
         document.getElementById("add-imageUrl2").value,
@@ -181,14 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const newProduct = {
         category: document.getElementById("add-category").value,
         title: document.getElementById("add-title").value,
-        price: parseInt(document.getElementById("add-price").value, 10),
-        serviceFee: parseInt(
-          document.getElementById("add-serviceFee").value,
-          10
-        ),
-        imageUrls: imageUrls, // <-- 改為傳遞 imageUrls 陣列
+        price: parseInt(document.getElementById("add-price").value, 10) || 0,
+        serviceFee:
+          parseInt(document.getElementById("add-serviceFee").value, 10) || 0,
+        imageUrls: imageUrls,
         longDescription: document.getElementById("add-longDescription").value,
-        stock: parseInt(document.getElementById("add-stock").value, 10),
+        stock: parseInt(document.getElementById("add-stock").value, 10) || 0,
         status: document.getElementById("add-status").value,
         tags: document
           .getElementById("add-tags")
@@ -207,14 +204,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "新增商品失敗");
+          throw new Error(errorData.message || "伺服器內部發生未知錯誤");
         }
         alert("商品新增成功！");
         form.reset();
-        await this.fetchAndRenderProducts(); // 重新載入列表
+        await this.fetchAndRenderProducts();
       } catch (error) {
         console.error("錯誤:", error);
-        alert(`新增商品時發生錯誤: ${error.message}`);
+        alert(`新增商品時發生錯誤：${error.message}`);
       } finally {
         submitButton.disabled = false;
         submitButton.innerText = "確認新增";
@@ -224,8 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
     handleProductActions(event) {
       const target = event.target;
       const productId = target.dataset.id;
-      if (!productId) return;
-
       if (target.classList.contains("btn-delete"))
         this.deleteProduct(productId);
       if (target.classList.contains("btn-edit")) this.openEditModal(productId);
@@ -252,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async openEditModal(productId) {
       try {
-        // [優化] 編輯時也從受保護的 API 獲取資料
         const response = await fetch(
           `${this.config.apiBaseUrl}/api/products/${productId}`,
           {
@@ -262,7 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!response.ok) throw new Error("無法獲取商品資料");
         const product = await response.json();
 
-        // 填充表單
         this.elements.editProductId.value = product.id;
         document.getElementById("edit-category").value = product.category;
         document.getElementById("edit-title").value = product.title;
@@ -270,7 +263,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-serviceFee").value =
           product.serviceFee || 0;
 
-        // [修正] 填充 5 個圖片網址欄位
         document.getElementById("edit-imageUrl1").value =
           product.imageUrls?.[0] || "";
         document.getElementById("edit-imageUrl2").value =
@@ -294,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
         this.elements.editModal.style.display = "block";
       } catch (error) {
         console.error("錯誤:", error);
-        alert("無法載入商品資料進行編輯。");
+        alert(`無法載入商品資料進行編輯: ${error.message}`);
       }
     },
 
@@ -308,7 +300,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const submitButton = form.querySelector('button[type="submit"]');
       const productId = this.elements.editProductId.value;
 
-      // [修正] 收集 5 個圖片網址欄位
       const imageUrls = [
         document.getElementById("edit-imageUrl1").value,
         document.getElementById("edit-imageUrl2").value,
@@ -320,14 +311,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const updatedProduct = {
         category: document.getElementById("edit-category").value,
         title: document.getElementById("edit-title").value,
-        price: parseInt(document.getElementById("edit-price").value, 10),
-        serviceFee: parseInt(
-          document.getElementById("edit-serviceFee").value,
-          10
-        ),
-        imageUrls: imageUrls, // <-- 改為傳遞 imageUrls 陣列
+        price: parseInt(document.getElementById("edit-price").value, 10) || 0,
+        serviceFee:
+          parseInt(document.getElementById("edit-serviceFee").value, 10) || 0,
+        imageUrls: imageUrls,
         longDescription: document.getElementById("edit-longDescription").value,
-        stock: parseInt(document.getElementById("edit-stock").value, 10),
+        stock: parseInt(document.getElementById("edit-stock").value, 10) || 0,
         status: document.getElementById("edit-status").value,
         tags: document
           .getElementById("edit-tags")
@@ -378,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
         this.elements.saveSortBtn.style.display = "none";
       } catch (error) {
         console.error("錯誤:", error);
-        alert("儲存排序時發生錯誤。");
+        alert(`儲存排序時發生錯誤: ${error.message}`);
       } finally {
         this.elements.saveSortBtn.disabled = false;
         this.elements.saveSortBtn.innerText = "儲存排序";
