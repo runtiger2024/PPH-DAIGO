@@ -1,10 +1,10 @@
 import express from "express";
-import { Pool } from "pg"; // <--- 替換 lowdb
+import { Pool } from "pg";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
-import "dotenv/config"; // 管理環境變數
+import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -12,11 +12,9 @@ import { fileURLToPath } from "url";
 // --- 初始化與設定 (Initialization & Configuration) ---
 // ================================================================
 
-// --- __dirname 的設定 (ES Modules 環境需要) ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --- 資料庫連線設定 ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl:
@@ -27,7 +25,6 @@ const pool = new Pool({
 
 const app = express();
 
-// --- 設定模板引擎 ---
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -44,7 +41,6 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // --- 服務與啟動腳本 (Services & Startup Scripts) ---
 // ================================================================
 
-// --- 資料庫初始化函式 ---
 async function initializeDatabase() {
   const client = await pool.connect();
   try {
@@ -193,7 +189,6 @@ function authorizeAdmin(req, res, next) {
 // --- API 路由 (Routes) ---
 // ================================================================
 
-// --- 網站主頁動態渲染路由 ---
 app.get("/", async (req, res, next) => {
   try {
     const { rows } = await pool.query(
@@ -219,7 +214,6 @@ app.get("/", async (req, res, next) => {
   }
 });
 
-// --- 公開路由 (Public Routes) ---
 app.post("/api/login", async (req, res, next) => {
   try {
     const { username, password } = req.body;
@@ -284,6 +278,7 @@ app.post("/api/orders", async (req, res, next) => {
       activityLog: [],
       ...orderData,
     };
+
     await pool.query(
       `INSERT INTO orders("orderId", "createdAt", status, "isNew", "activityLog", "paopaohuId", "lastFiveDigits", email, items, "totalAmount", "taxId")
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
@@ -301,6 +296,7 @@ app.post("/api/orders", async (req, res, next) => {
         newOrder.taxId,
       ]
     );
+
     sendEmailNotification({
       subject: `[新訂單通知] 訂單編號: ${newOrder.orderId}`,
       html: `<h2>新訂單通知</h2><p><strong>訂單編號:</strong> ${newOrder.orderId}</p><p><strong>跑跑虎ID:</strong> ${orderData.paopaohuId}</p><p><strong>總金額:</strong> ${orderData.totalAmount} TWD</p><p>請盡快登入後台處理。</p>`,
@@ -381,7 +377,6 @@ app.get("/api/categories", async (req, res, next) => {
   }
 });
 
-// --- 受保護路由 (Protected Routes, 需登入) ---
 app.get(
   "/api/notifications/summary",
   authenticateToken,
@@ -462,7 +457,6 @@ app.patch("/api/user/password", authenticateToken, async (req, res, next) => {
   }
 });
 
-// --- 管理員路由 (Admin Only Routes) ---
 app.get(
   "/api/admin/products",
   authenticateToken,
@@ -565,7 +559,7 @@ app.post(
       const { rows } = await pool.query(
         `SELECT MAX("sortOrder") as max_order FROM products`
       );
-      const maxOrder = rows[0].max_order || -1;
+      const maxOrder = rows[0].max_order;
 
       const newProduct = {
         id: `p${Date.now()}`,
@@ -578,11 +572,9 @@ app.post(
         stock: Number(stock) || 0,
         status: status || "published",
         tags: Array.isArray(tags) ? tags : [],
-        sortOrder: maxOrder + 1,
+        sortOrder: (maxOrder === null ? -1 : maxOrder) + 1,
       };
 
-      // [修正] 1. 直接傳遞 JS 陣列給 pg 驅動，不需手動 stringify
-      // [修正] 2. 將 sortOrder 加上雙引號，使其與 CREATE TABLE 的大小寫定義匹配
       await pool.query(
         `INSERT INTO products(id, title, price, category, "imageUrls", "serviceFee", "longDescription", stock, status, tags, "sortOrder")
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
@@ -591,12 +583,12 @@ app.post(
           newProduct.title,
           newProduct.price,
           newProduct.category,
-          newProduct.imageUrls, // <-- 修正點
+          newProduct.imageUrls,
           newProduct.serviceFee,
           newProduct.longDescription,
           newProduct.stock,
           newProduct.status,
-          newProduct.tags, // <-- 修正點
+          newProduct.tags,
           newProduct.sortOrder,
         ]
       );
@@ -645,7 +637,7 @@ app.put(
       }
       if (imageUrls !== undefined) {
         fields.push(`"imageUrls" = $${queryIndex++}`);
-        values.push(imageUrls); // <-- 修正點: 移除 JSON.stringify
+        values.push(imageUrls);
       }
       if (serviceFee !== undefined) {
         fields.push(`"serviceFee" = $${queryIndex++}`);
@@ -665,10 +657,10 @@ app.put(
       }
       if (tags !== undefined) {
         fields.push(`tags = $${queryIndex++}`);
-        values.push(tags); // <-- 修正點: 移除 JSON.stringify
+        values.push(tags);
       }
       if (sortOrder !== undefined) {
-        fields.push(`"sortOrder" = $${queryIndex++}`); // <-- 修正點: 加上雙引號
+        fields.push(`"sortOrder" = $${queryIndex++}`);
         values.push(sortOrder);
       }
 
@@ -725,7 +717,6 @@ app.patch(
         return res.status(400).json({ message: "資料格式不正確" });
 
       for (let i = 0; i < orderedIds.length; i++) {
-        // [修正] 將 sortOrder 加上雙引號
         await pool.query(`UPDATE products SET "sortOrder" = $1 WHERE id = $2`, [
           i,
           orderedIds[i],
@@ -1008,7 +999,6 @@ app.delete(
 // --- 伺服器啟動 ---
 // ================================================================
 
-// 將集中的錯誤處理中介軟體放在所有路由之後
 app.use((err, req, res, next) => {
   console.error(`[錯誤] 於 ${req.method} ${req.originalUrl}:`, err);
   res.status(500).json({ message: "伺服器內部發生未知錯誤" });
