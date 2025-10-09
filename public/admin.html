@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>後台商品管理 - 代採購大平台</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  </head>
+  <body class="admin-page">
+    <header class="site-header">
+      <div class="header-content">
+        <a href="index.html" class="site-logo-link" title="返回商店首頁">
+          <img
+            src="images/logo.png"
+            alt="代採購大平台 LOGO"
+            class="site-logo"
+          />
+        </a>
+
+        <nav class="main-nav desktop-nav admin-nav">
+          <a href="dashboard.html" class="nav-link-item">績效儀表板</a>
+          <a href="admin.html" class="nav-link-item active">商品管理</a>
+          <a href="category-admin.html" class="nav-link-item">分類管理</a>
+          <a href="orders-admin.html" class="nav-link-item"
+            >訂單管理<span class="notification-badge" id="orders-badge"></span
+          ></a>
+          <a href="requests-admin.html" class="nav-link-item"
+            >代採購請求<span
+              class="notification-badge"
+              id="requests-badge"
+            ></span
+          ></a>
+          <a href="users-admin.html" class="nav-link-item">使用者管理</a>
+          <a href="profile.html" class="nav-link-item">修改密碼</a>
+          <a href="site-editor.html" class="nav-link-item">編輯網站外觀</a>
+        </nav>
+
+        <div class="header-actions">
+          <a href="#" id="logout-btn" class="nav-link-item">登出</a>
+          <button
+            id="hamburger-btn"
+            class="hamburger-btn"
+            aria-label="開啟選單"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+      <div id="mobile-menu" class="mobile-menu">
+        <a href="dashboard.html">績效儀表板</a>
+        <a href="admin.html">商品管理</a>
+        <a href="category-admin.html">分類管理</a>
+        <a href="orders-admin.html">訂單管理</a>
+        <a href="requests-admin.html">代採購請求</a>
+        <a href="users-admin.html">使用者管理</a>
+        <a href="profile.html">修改密碼</a>
+        <a href="site-editor.html">編輯網站外觀</a>
+        <hr />
+        <a href="index.html">回到商店</a>
+        <a href="#" id="logout-btn-mobile">登出</a>
+      </div>
+    </header>
+
+    <main class="container admin-container">
+      <section class="page-section">
+        <h2>新增商品</h2>
+        <form id="add-product-form" class="admin-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="add-category">商品分類 *</label>
+              <select id="add-category" required></select>
+            </div>
+            <div class="form-group">
+              <label for="add-title">商品名稱 *</label>
+              <input type="text" id="add-title" required />
+            </div>
+            <div class="form-group">
+              <label for="add-price">台幣價格 (最終售價) *</label>
+              <input type="number" id="add-price" required />
+            </div>
+            <div class="form-group">
+              <label for="add-serviceFee">代購服務費 (台幣)</label>
+              <input type="number" id="add-serviceFee" value="0" required />
+            </div>
+            <div class="form-group">
+              <label for="add-stock">庫存數量</label>
+              <input type="number" id="add-stock" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="add-status">商品狀態</label>
+              <select id="add-status">
+                <option value="published">上架</option>
+                <option value="draft">草稿</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label for="add-imageUrl1">圖片/影片網址 1 (主圖) *</label>
+              <input
+                type="text"
+                id="add-imageUrl1"
+                required
+                placeholder="輸入圖片網址或 TikTok 影片連結"
+              />
+            </div>
+            <div class="form-group full-width">
+              <label for="add-imageUrl2">圖片網址 2</label>
+              <input
+                type="text"
+                id="add-imageUrl2"
+                placeholder="輸入圖片網址"
+              />
+            </div>
+            <div class="form-group full-width">
+              <label for="add-imageUrl3">圖片網址 3</label>
+              <input
+                type="text"
+                id="add-imageUrl3"
+                placeholder="輸入圖片網址"
+              />
+            </div>
+            <div class="form-group full-width">
+              <label for="add-imageUrl4">圖片網址 4</label>
+              <input
+                type="text"
+                id="add-imageUrl4"
+                placeholder="輸入圖片網址"
+              />
+            </div>
+            <div class="form-group full-width">
+              <label for="add-imageUrl5">圖片網址 5</label>
+              <input
+                type="text"
+                id="add-imageUrl5"
+                placeholder="輸入圖片網址"
+              />
+            </div>
+            <div class="form-group full-width">
+              <label for="add-tags">商品標籤 (用逗號 , 分隔)</label>
+              <input
+                type="text"
+                id="add-tags"
+                placeholder="例如: 藍牙耳機,降噪,Pro 2"
+              />
+            </div>
+            <div class="form-group full-width">
+              <label for="add-longDescription">商品詳細描述</label>
+              <textarea
+                id="add-longDescription"
+                rows="8"
+                placeholder="輸入商品的詳細介紹、規格、使用方式等..."
+              ></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">確認新增</button>
+        </form>
+      </section>
+
+      <section class="page-section">
+        <h2>批量新增/更新商品</h2>
+        <p class="text-light">
+          您可以透過上傳 Excel (.xlsx) 檔案來一次新增多筆商品，或根據商品 ID
+          更新現有商品。
+        </p>
+        <div class="bulk-upload-guide">
+          <strong>步驟：</strong>
+          <ol>
+            <li>
+              <a href="/templates/product_template.xlsx" download
+                >點此下載 Excel 範本檔案</a
+              >。
+            </li>
+            <li>依照範本格式填寫您的商品資料（注意：標題有 * 為必填欄位）。</li>
+            <li>
+              若要<strong>更新</strong>現有商品，請務必填寫第一欄的
+              `ID`；若要<strong>新增</strong>商品，請將 `ID` 欄留空。
+            </li>
+            <li>儲存 Excel 檔後，透過下方的表單上傳。</li>
+          </ol>
+        </div>
+        <form id="upload-product-form" class="admin-form">
+          <div class="form-group">
+            <label for="product-file-input">選擇 Excel (.xlsx) 檔案</label>
+            <input
+              type="file"
+              id="product-file-input"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-primary">上傳並匯入資料庫</button>
+        </form>
+      </section>
+
+      <section class="page-section">
+        <div class="section-header">
+          <h2>現有商品列表</h2>
+          <button id="save-sort-btn" class="btn-primary" style="display: none">
+            儲存排序
+          </button>
+        </div>
+        <p class="text-light">您可以直接用滑鼠拖曳表格中的項目來進行排序。</p>
+        <div class="table-responsive">
+          <table class="admin-table data-table">
+            <thead>
+              <tr>
+                <th>分類</th>
+                <th>名稱</th>
+                <th>最終售價</th>
+                <th>庫存</th>
+                <th>狀態</th>
+                <th style="width: 15%">操作</th>
+              </tr>
+            </thead>
+            <tbody id="product-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close-btn">&times;</span>
+        <h2>編輯商品</h2>
+        <form id="edit-product-form" class="admin-form">
+          <input type="hidden" id="edit-product-id" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="edit-category">商品分類 *</label>
+              <select id="edit-category" required></select>
+            </div>
+            <div class="form-group">
+              <label for="edit-title">商品名稱 *</label>
+              <input type="text" id="edit-title" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-price">台幣價格 (最終售價) *</label>
+              <input type="number" id="edit-price" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-serviceFee">代購服務費 (台幣)</label>
+              <input type="number" id="edit-serviceFee" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-stock">庫存數量</label>
+              <input type="number" id="edit-stock" />
+            </div>
+            <div class="form-group">
+              <label for="edit-status">商品狀態</label>
+              <select id="edit-status">
+                <option value="published">上架</option>
+                <option value="draft">草稿</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-imageUrl1">圖片/影片網址 1 (主圖) *</label>
+              <input type="text" id="edit-imageUrl1" required />
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-imageUrl2">圖片網址 2</label>
+              <input type="text" id="edit-imageUrl2" />
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-imageUrl3">圖片網址 3</label>
+              <input type="text" id="edit-imageUrl3" />
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-imageUrl4">圖片網址 4</label>
+              <input type="text" id="edit-imageUrl4" />
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-imageUrl5">圖片網址 5</label>
+              <input type="text" id="edit-imageUrl5" />
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-tags">商品標籤 (用逗號 , 分隔)</label>
+              <input type="text" id="edit-tags" />
+            </div>
+            <div class="form-group full-width">
+              <label for="edit-longDescription">商品詳細描述</label>
+              <textarea id="edit-longDescription" rows="8"></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">儲存變更</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/admin-main.js" defer></script>
+    <script src="js/admin.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>修改密碼</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container" style="max-width: 600px">
+      <h1>帳戶設定</h1>
+      <nav class="admin-nav">
+        <a href="index.html" class="nav-link">回到商店</a>
+        <a href="dashboard.html">績效儀表板</a>
+        <a href="admin.html">商品管理</a>
+        <a href="category-admin.html">分類管理</a>
+        <a href="orders-admin.html"
+          >訂單管理<span class="notification-badge" id="orders-badge"></span
+        ></a>
+        <a href="requests-admin.html"
+          >代採購請求<span class="notification-badge" id="requests-badge"></span
+        ></a>
+        <a href="users-admin.html">使用者管理</a>
+        <a href="profile.html">修改密碼</a>
+        <a href="#" id="logout-btn">登出</a>
+      </nav>
+
+      <section class="admin-section">
+        <h2>修改密碼</h2>
+        <form id="change-password-form" class="admin-form">
+          <div id="response-message" style="margin-bottom: 15px"></div>
+          <div class="form-group">
+            <label for="current-password">目前密碼</label>
+            <input type="password" id="current-password" required />
+          </div>
+          <div class="form-group">
+            <label for="new-password">新密碼</label>
+            <input type="password" id="new-password" required />
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">確認新密碼</label>
+            <input type="password" id="confirm-password" required />
+          </div>
+          <button type="submit" class="btn btn-primary">更新密碼</button>
+        </form>
+      </section>
+    </div>
+    <script src="js/profile.js" defer></script>
+    <script src="js/admin-main.js" defer></script>
+  </body>
+</html>

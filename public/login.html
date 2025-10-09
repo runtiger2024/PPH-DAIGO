@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>後台登入</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container" style="max-width: 450px; margin-top: 8%">
+      <h1 style="text-align: center; border-bottom: none">後台管理登入</h1>
+      <div class="page-section" style="margin-top: 20px">
+        <form id="login-form">
+          <div
+            id="error-message"
+            style="
+              color: #c82333;
+              margin-bottom: 15px;
+              text-align: center;
+              min-height: 1.2em;
+            "
+          ></div>
+          <div class="form-group">
+            <label for="username">帳號</label>
+            <input type="text" id="username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">密碼</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit" class="btn-submit">登入</button>
+        </form>
+      </div>
+      <div style="text-align: center; margin-top: 20px">
+        <a href="index.html">返回商店首頁</a>
+      </div>
+    </div>
+    <script src="js/login.js" defer></script>
+  </body>
+</html>

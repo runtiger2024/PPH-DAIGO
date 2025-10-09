@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>訂單查詢 - 代採購大平台</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-content">
+        <h1 class="site-title">代採購大平台</h1>
+        <nav class="main-nav">
+          <a href="index.html">批發貨源</a>
+          <a href="request.html">代採購</a>
+          <a href="lookup.html">訂單查詢</a>
+          <a href="checkout.html">購物車</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-section">
+        <h2>訂單進度查詢</h2>
+        <p>
+          請輸入您下單時所填寫的「跑跑虎集運會員編號」，即可查詢相關的歷史訂單紀錄。
+        </p>
+
+        <form id="lookup-form" class="admin-form" style="margin-top: 20px">
+          <div class="form-group">
+            <label for="paopaohu-id-input">跑跑虎集運會員編號</label>
+            <input
+              type="text"
+              id="paopaohu-id-input"
+              placeholder="請輸入會員編號"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-submit">查詢訂單</button>
+        </form>
+      </div>
+
+      <div id="lookup-results" class="lookup-results-container"></div>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; 2025 代採購大平台. All Rights Reserved.</p>
+      <div class="footer-links">
+        <a href="login.html" class="admin-login-link">管理者登入</a>
+      </div>
+    </footer>
+
+    <script src="js/lookup.js" defer></script>
+  </body>
+</html>

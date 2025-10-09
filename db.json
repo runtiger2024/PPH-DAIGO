@@ -1,0 +1,104 @@
+{
+  "products": [
+    {
+      "id": "p1722096789123",
+      "category": "華強北專區",
+      "title": "頂配版 華強北藍牙耳機 Pro 2",
+      "price": 900,
+      "imageUrls": [
+        "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop"
+      ],
+      "serviceFee": 100,
+      "sortOrder": 0,
+      "stock": 50,
+      "status": "published",
+      "tags": ["藍牙耳機", "降噪", "Pro 2", "悅虎晶片"],
+      "longDescription": "體驗極致的聽覺盛宴！這款頂配版華強北 Pro 2 耳機搭載最新的悅虎 AI 晶片，不僅完美還原所有功能，更在音質和降噪深度上做到了極致。無論是通勤、運動還是專心工作，它都是您的最佳伴侶。\n\n**產品特色：**\n• 精準空間音訊與頭部追蹤\n• 45dB 主動式降噪與通透模式\n• 單次充電 6 小時續航，搭配充電盒可達 30 小時\n• IPX4 等級抗汗抗水功能"
+    },
+    {
+      "id": "p1722096812345",
+      "category": "廣州服飾",
+      "title": "重磅純棉素T (多色)",
+      "price": 350,
+      "imageUrls": [
+        "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop"
+      ],
+      "serviceFee": 50,
+      "sortOrder": 1,
+      "stock": 120,
+      "status": "published",
+      "tags": ["T-shirt", "純棉", "重磅", "素色", "百搭"],
+      "longDescription": "衣櫃裡永遠不可或缺的經典單品。我們精選 320g 新疆長絨棉，打造出這款極具份量感的重磅素T。領口採用加固羅紋設計，久洗不易鬆脫變形。版型經過多次調整，無論單穿或內搭都能展現完美身形。\n\n**產品規格：**\n• 材質：100% 新疆長絨棉\n• 磅數：320g\n• 顏色：經典黑 / 純淨白 / 麻灰色 / 軍綠色\n• 尺寸：S / M / L / XL / XXL"
+    },
+    {
+      "id": "p1722096912345",
+      "category": "義烏商品",
+      "title": "多功能桌面收納盒",
+      "price": 80,
+      "imageUrls": [
+        "https://images.unsplash.com/photo-1594215983724-4366d5b94843?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop"
+      ],
+      "serviceFee": 20,
+      "sortOrder": 2,
+      "stock": 200,
+      "status": "published",
+      "tags": ["收納", "文具", "桌面整理", "辦公小物"],
+      "longDescription": "告別雜亂桌面，還你清爽工作空間。這款多功能收納盒採用分格設計，筆、便條紙、手機、化妝品等小物都能輕鬆歸位。底部設有防滑墊，放置穩固。簡約的設計風格，能融入任何居家或辦公環境。"
+    }
+  ],
+  "orders": [
+    {
+      "id": "o1723550880123",
+      "orderId": "DGP202508130001",
+      "paopaohuId": "PPH12345",
+      "email": "customer@example.com",
+      "totalAmount": 1000,
+      "status": "處理中",
+      "createdAt": "2025-08-13T20:08:00.123Z",
+      "items": [
+        {
+          "id": "p1722096789123",
+          "title": "頂配版 華強北藍牙耳機 Pro 2",
+          "price": 900,
+          "serviceFee": 100,
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "u1722090000001",
+      "username": "randy",
+      "passwordHash": "$2b$10$VEbET.eFrrkNSuwfPFV.J.FVOvM3RplQtE0/60PQe.3Tr8y1qbHd2",
+      "role": "admin"
+    }
+  ],
+  "requests": [],
+  "categories": [
+    {
+      "id": "cat_1722100000001",
+      "name": "華強北專區"
+    },
+    {
+      "id": "cat_1722100000002",
+      "name": "廣州服飾"
+    },
+    {
+      "id": "cat_1722100000003",
+      "name": "義烏商品"
+    }
+  ]
+}
