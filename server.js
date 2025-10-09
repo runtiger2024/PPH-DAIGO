@@ -61,7 +61,7 @@ async function initializeDatabase() {
         title TEXT NOT NULL,
         price NUMERIC DEFAULT 0,
         category TEXT,
-        "imageUrls" JSONB, /* <-- [最終修正] 從 TEXT 改為 JSONB 以儲存圖片陣列 */
+        "imageUrls" JSONB,
         "serviceFee" NUMERIC DEFAULT 0,
         "longDescription" TEXT,
         stock INTEGER DEFAULT 0,
@@ -105,21 +105,6 @@ async function initializeDatabase() {
         content_settings JSONB
       );
     `);
-
-    // [補充健壯性] 檢查舊欄位 imageUrl 是否存在，如果存在就刪除
-    // 這段程式碼只會在欄位還存在時執行一次
-    const { rows } = await client.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name='products' AND column_name='imageUrl';
-    `);
-
-    if (rows.length > 0) {
-      console.log("偵測到舊的 imageUrl 欄位，正在移除...");
-      await client.query(`ALTER TABLE products DROP COLUMN "imageUrl";`);
-      console.log("舊的 imageUrl 欄位已成功移除。");
-    }
-
     console.log("資料庫資料表已成功驗證/建立。");
   } finally {
     client.release();
