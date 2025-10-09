@@ -605,12 +605,10 @@ app.post(
           newProduct.title,
           newProduct.price,
           newProduct.category,
-          JSON.stringify(newProduct.imageUrls), // <--- 變更: 轉換為 JSON 字串
           newProduct.serviceFee,
           newProduct.longDescription,
           newProduct.stock,
           newProduct.status,
-          JSON.stringify(newProduct.tags),
           newProduct.sortOrder,
         ]
       );
@@ -660,7 +658,7 @@ app.put(
       }
       if (imageUrls !== undefined) {
         fields.push(`"imageUrls" = $${queryIndex++}`); // <--- 變更: 欄位名稱
-        values.push(JSON.stringify(imageUrls)); // <--- 變更: 轉換為 JSON 字串
+        values.push(imageUrls); // <--- 變更: 轉換為 JSON 字串
       }
       if (serviceFee !== undefined) {
         fields.push(`"serviceFee" = $${queryIndex++}`);
@@ -680,7 +678,7 @@ app.put(
       }
       if (tags !== undefined) {
         fields.push(`tags = $${queryIndex++}`);
-        values.push(JSON.stringify(tags));
+        values.push(tags);
       }
       if (sortOrder !== undefined) {
         fields.push(`"sortOrder" = $${queryIndex++}`);
