@@ -466,6 +466,7 @@ img {
   gap: var(--spacing-6);
   align-items: start;
 }
+<<<<<<< HEAD
 /* 新增: 圖片畫廊容器 */
 .product-media-gallery {
   display: flex;
@@ -478,6 +479,8 @@ img {
   flex-wrap: wrap;
   gap: var(--spacing-2);
 }
+=======
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
 .product-media-container-lg {
   width: 100%;
   padding-bottom: 56.25%; /* 16:9 比例，適合大多數影片 */
@@ -488,7 +491,11 @@ img {
   box-shadow: var(--shadow-lg);
 }
 .product-media-container-lg .tiktok-embed-lg,
+<<<<<<< HEAD
 .product-media-container-lg img.main-product-image {
+=======
+.product-media-container-lg img {
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
   position: absolute;
   top: 0;
   left: 0;
@@ -496,6 +503,7 @@ img {
   height: 100%;
   object-fit: contain;
 }
+<<<<<<< HEAD
 .product-thumbnail {
   width: 80px;
   height: 80px;
@@ -510,6 +518,8 @@ img {
   border-color: var(--primary-color);
 }
 
+=======
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
 .product-detail-info {
   display: flex;
   flex-direction: column;
@@ -812,9 +822,12 @@ img {
   .product-detail-view {
     grid-template-columns: 1fr;
   }
+<<<<<<< HEAD
   .product-media-gallery {
     flex-direction: column-reverse; /* 讓縮圖在主圖上方 */
   }
+=======
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
 }
 
 @media (max-width: 768px) {
@@ -983,6 +996,15 @@ img {
   .cart-table td:last-child {
     border-bottom: none;
   }
+<<<<<<< HEAD
+=======
+  .cart-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    margin-right: auto;
+  }
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
   .cart-summary {
     text-align: left;
     padding: var(--spacing-3);

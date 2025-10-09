@@ -65,7 +65,11 @@ async function initializeDatabase() {
         title TEXT NOT NULL,
         price NUMERIC DEFAULT 0,
         category TEXT,
+<<<<<<< HEAD
         "imageUrls" JSONB,
+=======
+        "imageUrl" TEXT,
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         "serviceFee" NUMERIC DEFAULT 0,
         "longDescription" TEXT,
         stock INTEGER DEFAULT 0,
@@ -567,7 +571,11 @@ app.post(
         title,
         price,
         category,
+<<<<<<< HEAD
         imageUrls, // <--- 變更: 從 imageUrl 改為 imageUrls
+=======
+        imageUrl,
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         serviceFee,
         longDescription,
         stock,
@@ -588,7 +596,11 @@ app.post(
         title,
         price: Number(price) || 0,
         category: category || "未分類",
+<<<<<<< HEAD
         imageUrls: Array.isArray(imageUrls) ? imageUrls : [], // <--- 變更: 確保是陣列
+=======
+        imageUrl: imageUrl || "",
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         serviceFee: Number(serviceFee) || 0,
         longDescription: longDescription || "",
         stock: Number(stock) || 0,
@@ -598,14 +610,22 @@ app.post(
       };
 
       await pool.query(
+<<<<<<< HEAD
         `INSERT INTO products(id, title, price, category, "imageUrls", "serviceFee", "longDescription", stock, status, tags, "sortOrder")
+=======
+        `INSERT INTO products(id, title, price, category, "imageUrl", "serviceFee", "longDescription", stock, status, tags, "sortOrder")
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
         [
           newProduct.id,
           newProduct.title,
           newProduct.price,
           newProduct.category,
+<<<<<<< HEAD
           JSON.stringify(newProduct.imageUrls), // <--- 變更: 轉換為 JSON 字串
+=======
+          newProduct.imageUrl,
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
           newProduct.serviceFee,
           newProduct.longDescription,
           newProduct.stock,
@@ -632,7 +652,11 @@ app.put(
         title,
         price,
         category,
+<<<<<<< HEAD
         imageUrls, // <--- 變更: 從 imageUrl 改為 imageUrls
+=======
+        imageUrl,
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
         serviceFee,
         longDescription,
         stock,
@@ -658,9 +682,15 @@ app.put(
         fields.push(`category = $${queryIndex++}`);
         values.push(category);
       }
+<<<<<<< HEAD
       if (imageUrls !== undefined) {
         fields.push(`"imageUrls" = $${queryIndex++}`); // <--- 變更: 欄位名稱
         values.push(JSON.stringify(imageUrls)); // <--- 變更: 轉換為 JSON 字串
+=======
+      if (imageUrl !== undefined) {
+        fields.push(`"imageUrl" = $${queryIndex++}`);
+        values.push(imageUrl);
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       }
       if (serviceFee !== undefined) {
         fields.push(`"serviceFee" = $${queryIndex++}`);

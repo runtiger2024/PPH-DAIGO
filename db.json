@@ -5,6 +5,7 @@
       "category": "華強北專區",
       "title": "頂配版 華強北藍牙耳機 Pro 2",
       "price": 900,
+<<<<<<< HEAD
       "imageUrls": [
         "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
@@ -12,6 +13,9 @@
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop"
       ],
+=======
+      "imageUrl": "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       "serviceFee": 100,
       "sortOrder": 0,
       "stock": 50,
@@ -24,6 +28,7 @@
       "category": "廣州服飾",
       "title": "重磅純棉素T (多色)",
       "price": 350,
+<<<<<<< HEAD
       "imageUrls": [
         "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
@@ -31,6 +36,9 @@
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop"
       ],
+=======
+      "imageUrl": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=1974&auto=format&fit=crop",
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       "serviceFee": 50,
       "sortOrder": 1,
       "stock": 120,
@@ -43,6 +51,7 @@
       "category": "義烏商品",
       "title": "多功能桌面收納盒",
       "price": 80,
+<<<<<<< HEAD
       "imageUrls": [
         "https://images.unsplash.com/photo-1594215983724-4366d5b94843?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?q=80&w=1974&auto=format&fit=crop",
@@ -50,6 +59,9 @@
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1629837922245-c49c0d21e8e5?q=80&w=1974&auto=format&fit=crop"
       ],
+=======
+      "imageUrl": "https://images.unsplash.com/photo-1594215983724-4366d5b94843?q=80&w=1974&auto=format&fit=crop",
+>>>>>>> b25132fcc8609441de6fa481a24c31129f32d663
       "serviceFee": 20,
       "sortOrder": 2,
       "stock": 200,
